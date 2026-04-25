@@ -1108,7 +1108,7 @@ function novaReuniao() {
       body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-eu-' + item.id + '">';
       NOTAS_OPTIONS.forEach(function(opt) {
         var sel = notaEu === opt ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
-        body += '<button onclick="setNotaTabela('' + item.id + '','eu','' + opt + '')" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+        body += '<button onclick="setNotaTabela(\"' + item.id + '\",\"eu\",\"' + opt + '\")" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
       });
       body += '</div></div>';
       // Conjuge
@@ -1116,7 +1116,7 @@ function novaReuniao() {
       body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-cj-' + item.id + '">';
       NOTAS_OPTIONS.forEach(function(opt) {
         var sel = opt === '-' ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
-        body += '<button onclick="setNotaTabela('' + item.id + '','conjuge','' + opt + '')" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+        body += '<button onclick="setNotaTabela(\"' + item.id + '\",\"conjuge\",\"' + opt + '\")" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
       });
       body += '</div></div>';
       body += '</div></div>';
