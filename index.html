@@ -63,16 +63,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 .bar-fill{height:5px;border-radius:3px;background:var(--green);transition:width 0.5s ease;}
 .stat-sub{font-size:11px;color:var(--text3);margin-top:5px;}
 .page{display:none;}.page.active{display:block;}
-.filter-box{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:13px 14px;margin-bottom:1.25rem;}
-.filter-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
-.filter-row{display:flex;gap:8px;margin-bottom:8px;}
-.filter-field{flex:1;display:flex;flex-direction:column;gap:4px;}
-.filter-field label{font-size:11px;color:var(--text2);font-weight:700;}
-.filter-field input{width:100%;padding:7px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;}
-.filter-field input:focus{border-color:var(--text);}
-.filter-error{font-size:12px;color:#c0392b;min-height:16px;margin-bottom:4px;}
-.filter-btn{width:100%;padding:10px;background:var(--text);border:none;border-radius:var(--radius);font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:opacity 0.15s;}
-.filter-btn:active{opacity:0.85;}
+
 .hist-block{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:1rem;}
 .hist-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .hist-title{font-size:14px;font-weight:700;}
@@ -85,8 +76,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 .hist-table td{padding:6px 6px;border-bottom:0.5px solid var(--border);vertical-align:middle;}
 .hist-table tr:last-child td{border-bottom:none;}
 .empty{text-align:center;padding:3rem 0;font-size:14px;color:var(--text3);}
-.filtered-block{background:var(--surface);border:1.5px solid var(--green-border);border-radius:var(--radius-lg);padding:14px;margin-bottom:1.25rem;}
-.filtered-block .hist-title{color:var(--green);}
+
 .tema-header{background:var(--blue-bg);border:0.5px solid var(--blue-border);border-radius:var(--radius-lg);padding:13px 14px;margin-bottom:1.25rem;}
 .tema-titulo{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:3px;}
 .tema-mes{font-size:12px;color:var(--text2);}
@@ -148,10 +138,10 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
   <div id="page-stats" class="page">
     <div class="cycle-box">
       <div>
-        <div class="cycle-since">Ciclo atual iniciado em</div>
+        <div class="cycle-since">Reunião atual iniciada em</div>
         <div class="cycle-dates" id="cycle-label">—</div>
       </div>
-      <button class="new-cycle-btn" onclick="startCloseCycle()">Novo ciclo</button>
+      <button class="new-cycle-btn" onclick="startCloseCycle()">Nova Reunião</button>
     </div>
     <div class="section-label">Pontos concretos de esforço</div>
     <div id="stats-pce"></div>
@@ -183,22 +173,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 
   <div id="page-history" class="page">
-    <div class="filter-box">
-      <div class="filter-title">Relatório por período</div>
-      <div class="filter-row">
-        <div class="filter-field">
-          <label>De</label>
-          <input type="date" id="filter-start" />
-        </div>
-        <div class="filter-field">
-          <label>Até</label>
-          <input type="date" id="filter-end" />
-        </div>
-      </div>
-      <div class="filter-error" id="filter-error"></div>
-      <button class="filter-btn" onclick="applyFilter()">Gerar relatório do período</button>
-    </div>
-    <div id="filtered-result"></div>
     <div id="hist-list"></div>
   </div>
 </div>
@@ -252,8 +226,8 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 
 <div class="overlay" id="modal-newdate" style="display:none;">
   <div class="modal">
-    <h2>Encerrar ciclo atual</h2>
-    <p>O ciclo atual será encerrado. A partir de que data deseja iniciar o novo ciclo?</p>
+    <h2>Encerrar reunião atual</h2>
+    <p>O reunião atual será encerrada. A partir de que data deseja iniciar o nova reunião?</p>
     <input type="date" id="inp-newdate" />
     <div class="modal-btns">
       <button class="btn-secondary" onclick="closeModal('modal-newdate')">Cancelar</button>
@@ -276,7 +250,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 
 <div class="overlay" id="modal-delete" style="display:none;">
   <div class="modal">
-    <h2>Apagar ciclo?</h2>
+    <h2>Apagar reunião?</h2>
     <p id="delete-msg">Esta ação não pode ser desfeita.</p>
     <div class="modal-btns">
       <button class="btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
@@ -540,38 +514,6 @@ function renderStats() {
 }
 
 // ---- Filter ----
-function applyFilter() {
-  var fs = document.getElementById('filter-start').value;
-  var fe = document.getElementById('filter-end').value;
-  var errEl = document.getElementById('filter-error');
-  errEl.textContent = '';
-  if (!fs || !fe) { errEl.textContent = 'Por favor, preencha as duas datas.'; return; }
-  if (fe < fs)    { errEl.textContent = 'A data final deve ser maior que a inicial.'; return; }
-  if (daysBetween(fs, fe) > 45) { errEl.textContent = 'O intervalo nao pode ser superior a 45 dias.'; return; }
-  var allRecs = JSON.parse(JSON.stringify(records));
-  cycles.forEach(function(c) { Object.assign(allRecs, c.records); });
-  var days = Object.keys(allRecs).filter(function(d) { return d >= fs && d <= fe; }).sort();
-  if (!days.length) {
-    document.getElementById('filtered-result').innerHTML =
-      '<div class="filtered-block"><div class="hist-title">Periodo: ' + fmtDate(fs) + ' a ' + fmtDate(fe) + '</div>' +
-      '<div class="hist-sub" style="margin-top:6px;">Nenhum registro encontrado neste periodo.</div></div>';
-    return;
-  }
-  var rows = buildRowsWithNotas(days, allRecs, null);
-  var blockId = 'filtered-block-export';
-  document.getElementById('filtered-result').innerHTML =
-    '<div class="filtered-block" id="' + blockId + '">' +
-    '<div class="hist-header"><div>' +
-    '<div class="hist-title">Periodo: ' + fmtDate(fs) + ' a ' + fmtDate(fe) + '</div>' +
-    '<div class="hist-sub">' + days.length + ' dias com registro' + (userName ? ' &middot; ' + userName : '') + '</div></div>' +
-    '<div class="hist-actions">' +
-    '<button class="exp-btn" onclick="exportFilterPDF(\'' + fs + '\',\'' + fe + '\')">PDF</button>' +
-    '<button class="exp-btn" onclick="exportFilterExcel(\'' + fs + '\',\'' + fe + '\')">Excel</button>' +
-    '<button class="exp-btn" onclick="exportPNG(\'' + blockId + '\',\'periodo\')">PNG</button>' +
-    '</div></div>' + makeTableHTML(rows) + '</div>';
-}
-
-// ---- Cycle closing ----
 function startCloseCycle() {
   document.getElementById('inp-newdate').value = todayStr();
   document.getElementById('modal-newdate').style.display = 'flex';
@@ -655,7 +597,7 @@ function askDelete(idx) {
   _deleteIdx = idx;
   var c = cycles[idx];
   document.getElementById('delete-msg').textContent =
-    'Apagar o Ciclo ' + (idx+1) + ' (' + fmtDate(c.start) + ' a ' + fmtDate(c.end) + ')? Esta acao nao pode ser desfeita.';
+    'Apagar a Reunião ' + (idx+1) + ' (' + fmtDate(c.start) + ' a ' + fmtDate(c.end) + ')? Esta acao nao pode ser desfeita.';
   document.getElementById('modal-delete').style.display = 'flex';
 }
 function confirmDelete() {
@@ -844,52 +786,6 @@ function exportExcel() {
     XLSX.utils.book_append_sheet(wb, ws2, 'Tema de Estudos');
   }
   XLSX.writeFile(wb, (userName ? userName.replace(/\s+/g,'-') + '-' : '') + 'ENS-PCEs-historico.xlsx');
-}
-
-function exportFilterPDF(fs, fe) {
-  var allRecs = JSON.parse(JSON.stringify(records));
-  cycles.forEach(function(c) { Object.assign(allRecs, c.records); });
-  var days = Object.keys(allRecs).filter(function(d) { return d >= fs && d <= fe; }).sort();
-  var rows = buildRowsWithNotas(days, allRecs, null);
-  var css = '<style>body{font-family:Arial,sans-serif;padding:2rem;color:#1a1a18;max-width:700px;margin:0 auto;}' +
-    'h1{font-size:20px;margin-bottom:4px;}.sub{font-size:12px;color:#888;margin-bottom:1.5rem;}' +
-    'table{width:100%;border-collapse:collapse;font-size:13px;}' +
-    'th{text-align:left;font-size:11px;color:#888;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid #ddd;}' +
-    'td{padding:6px 8px;border-bottom:1px solid #f0f0f0;}' +
-    '.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-weight:700;font-size:11px;}' +
-    '.I{background:#1a4d2e;color:#fff}.B{background:#2d7a4f;color:#fff}' +
-    '.R{background:#e07b00;color:#fff}.F{background:#c0392b;color:#fff}' +
-    '.N{background:#9b9b95;color:#fff}.S{background:#2d7a4f;color:#fff}.NAO{background:#c0392b;color:#fff}</style>';
-  var body = '<h1>ENS - PCEs</h1><p class="sub">Periodo: ' + fmtDate(fs) + ' a ' + fmtDate(fe) +
-    (userName ? ' &middot; ' + userName : '') + ' &middot; ' + days.length + ' dias</p>' +
-    '<table><thead><tr><th>Item</th><th>%</th><th>Avaliacao</th></tr></thead><tbody>';
-  rows.forEach(function(r) {
-    var cls = r.nota === 'NAO' ? 'NAO' : r.nota;
-    var lbl = r.nota === 'NAO' ? 'N' : r.nota;
-    body += '<tr><td>' + r.label + '</td><td>' + r.pct + '</td><td><span class="badge ' + cls + '">' + lbl + ' — ' + r.notaDesc + '</span></td></tr>';
-  });
-  body += '</tbody></table>';
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' + css + '</head><body>' + body + '</body></html>';
-  // build inner content for preview
-  var previewHtml = body.replace(/<style>.*?<\/style>/s, '');
-  showPreview('<div style="font-family:sans-serif;">' + body + '</div>', 'history');
-}
-
-function exportFilterExcel(fs, fe) {
-  var allRecs = JSON.parse(JSON.stringify(records));
-  cycles.forEach(function(c) { Object.assign(allRecs, c.records); });
-  var days = Object.keys(allRecs).filter(function(d) { return d >= fs && d <= fe; }).sort();
-  var rows = buildRowsWithNotas(days, allRecs, null);
-  var per = fmtDate(fs) + ' a ' + fmtDate(fe);
-  var header = [['Usuario','Periodo','Grupo','Item','%','Nota','Descricao']];
-  var data = rows.map(function(r) {
-    return [userName||'', per, r.grupo, r.label, r.pct, r.nota==='NAO'?'N':r.nota, r.notaDesc];
-  });
-  var wb = XLSX.utils.book_new();
-  var ws = XLSX.utils.aoa_to_sheet(header.concat(data));
-  ws['!cols'] = [{wch:16},{wch:26},{wch:6},{wch:32},{wch:8},{wch:8},{wch:12}];
-  XLSX.utils.book_append_sheet(wb, ws, 'Periodo');
-  XLSX.writeFile(wb, (userName ? userName.replace(/\s+/g,'-') + '-' : '') + 'ENS-PCEs-periodo.xlsx');
 }
 
 function exportPNG(blockId, suffix) {
