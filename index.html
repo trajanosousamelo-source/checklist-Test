@@ -748,7 +748,8 @@ function temaOpcaoResposta(opcao) {
 function gerarRelatorioReuniao(idx) {
   _relatorioAtual = {tipo: 'reuniao', idx: idx};
   var c = cycles[idx];
-  var temRespostas = c.temaRespostas && Object.keys(c.temaRespostas).some(function(k) { return c.temaRespostas[k]; });
+  var respostasObj = c.temaRespostas || (c.tema && c.tema.respostas) || {};
+    var temRespostas = temRespostasPreenchidas(respostasObj);
   if (temRespostas) {
     _relatorioComRespostas = true;
     prepararRelatorio(true);
@@ -757,20 +758,26 @@ function gerarRelatorioReuniao(idx) {
   }
 }
 
+function temRespostasPreenchidas(respostas) {
+  if (!respostas) return false;
+  return Object.keys(respostas).some(function(k) { return respostas[k] && respostas[k].trim(); });
+}
+
 function prepararRelatorio(comRespostas) {
-  var tabelaHTML = buildFolhaPartilhaHTML(true);
-  var temaData, respostas;
+  var temaData, respostasCandidate;
   if (_relatorioAtual.tipo === 'atual') {
     temaData = {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
-    respostas = comRespostas ? getTemaRespostas() : null;
+    respostasCandidate = getTemaRespostas();
   } else {
     var c = cycles[_relatorioAtual.idx];
     temaData = c.tema || {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
-    respostas = comRespostas ? (c.temaRespostas || c.tema && c.tema.respostas || {}) : null;
+    respostasCandidate = c.temaRespostas || (c.tema && c.tema.respostas) || {};
   }
-  _relatorioAtual.tabelaHTML = tabelaHTML;
+  // Sempre verifica de fato se há respostas preenchidas, ignora o que o usuário disse
+  var respostasReais = temRespostasPreenchidas(respostasCandidate) ? respostasCandidate : null;
   _relatorioAtual.temaData = temaData;
-  _relatorioAtual.respostas = respostas;
+  _relatorioAtual.respostas = respostasReais;
+  _relatorioComRespostas = !!respostasReais;
   document.getElementById('modal-relatorio-export').style.display = 'flex';
 }
 
@@ -909,7 +916,13 @@ function buildFolhaPartilhaPDFTable() {
 function editarRespostasReuniao(idx) {
   var c = cycles[idx];
   var temaData = c.tema || {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
-  var respostas = c.temaRespostas || {};
+  var respostasExist = c.temaRespostas || (c.tema && c.tema.respostas) || {};
+  // Só permite editar se não há respostas reais preenchidas
+  if (temRespostasPreenchidas(respostasExist)) {
+    alert('Este relatório já possui respostas salvas e não pode ser editado.');
+    return;
+  }
+  var respostas = respostasExist;
   document.getElementById('modal-reuniao-tema-titulo').textContent = 'Tema — ' + (temaData.mes || '');
   document.getElementById('modal-reuniao-tema-sub').textContent = temaData.titulo || '';
   var body = document.getElementById('modal-reuniao-tema-body');
