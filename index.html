@@ -206,6 +206,13 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="section-label" style="margin-top:1rem;">Reuniões encerradas</div>
       <div id="reunioes-partilha"></div>
       <button onclick="iniciarGeracaoRelatorio()" style="width:100%;margin-top:12px;padding:12px;background:var(--blue);border:none;border-radius:var(--radius);font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Gerar Relatório</button>
+
+      <div id="partilha-anual" style="display:none;margin-top:1rem;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-lg);padding:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:4px;">🎉 10 reuniões concluídas!</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">O ano está completo. Você pode gerar o relatório anual com a tabela completa e todas as respostas do tema, e depois iniciar um novo ano.</div>
+        <button onclick="gerarRelatorioAnual()" style="width:100%;padding:11px;background:var(--green);border:none;border-radius:var(--radius);font-size:13px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:8px;">Gerar Relatório Anual</button>
+        <button onclick="confirmarNovoAno()" style="width:100%;padding:11px;background:transparent;border:1.5px solid var(--green);border-radius:var(--radius);font-size:13px;font-weight:700;color:var(--green);cursor:pointer;">Iniciar Novo Ano</button>
+      </div>
     </div>
   </div>
 
@@ -240,6 +247,17 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="modal-btns">
       <button class="btn-secondary" onclick="closeModal('modal-review')">Cancelar</button>
       <button class="btn-primary" onclick="confirmCycle()">Confirmar e encerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-novo-ano" style="display:none;">
+  <div class="modal">
+    <h2>Iniciar novo ano?</h2>
+    <p>Todas as reuniões e dados da Folha da Partilha serão apagados. Certifique-se de ter gerado o Relatório Anual antes de continuar. Esta ação não pode ser desfeita.</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('modal-novo-ano')">Cancelar</button>
+      <button class="btn-danger" onclick="executarNovoAno()">Confirmar novo ano</button>
     </div>
   </div>
 </div>
@@ -1179,16 +1197,18 @@ function renderTabela() {
   document.getElementById('tabela-main').style.display = 'block';
   document.getElementById('tabela-casal-nome').textContent = tabelaConfig.casal || 'Casal';
   var btnNova = document.getElementById('btn-nova-reuniao');
-  var total = tabelaReunioes.length + (tabelaReunioes.length < 10 ? 1 : 0);
   if (tabelaReunioes.length >= 10) {
     btnNova.disabled = true;
     btnNova.style.opacity = '0.4';
-    btnNova.textContent = 'Máx. 10 reuniões atingido';
+    btnNova.textContent = '10 reuniões concluídas';
   } else {
     btnNova.disabled = false;
     btnNova.style.opacity = '1';
     btnNova.textContent = 'Encerrar reunião ' + (tabelaReunioes.length + 1) + ' e iniciar próxima';
   }
+  // Show/hide annual section
+  var anuDiv = document.getElementById('partilha-anual');
+  if (anuDiv) anuDiv.style.display = tabelaReunioes.length >= 10 ? 'block' : 'none';
   renderTabelaResumo();
   renderReunioesPartilha();
 }
@@ -1485,6 +1505,91 @@ function exportTabelaExcel() {
   for (var i=0;i<tabelaReunioes.length*2;i++) ws['!cols'].push({wch:10});
   XLSX.utils.book_append_sheet(wb, ws, 'Tabela PCEs');
   XLSX.writeFile(wb, (tabelaConfig&&tabelaConfig.casal?tabelaConfig.casal.replace(/\s+/g,'-')+'-':'')+'ENS-Tabela-PCEs.xlsx');
+}
+
+// ---- Relatorio Anual ----
+function gerarRelatorioAnual() {
+  var casal = tabelaConfig ? tabelaConfig.casal : '';
+  var css = '<style>body{font-family:Arial,sans-serif;padding:1.5rem;color:#1a1a18;max-width:750px;margin:0 auto;}' +
+    'h1{font-size:18px;margin-bottom:3px;}.sub{font-size:11px;color:#888;margin-bottom:1.5rem;}' +
+    'h2{font-size:14px;margin:1.5rem 0 8px;color:#1a4f8a;border-bottom:1px solid #ddd;padding-bottom:4px;}' +
+    'h3{font-size:13px;margin:1rem 0 6px;color:#2d7a4f;}' +
+    '.qb{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;}' +
+    '.qn{font-size:10px;color:#888;text-transform:uppercase;margin-bottom:3px;}' +
+    '.qt{font-size:13px;font-weight:bold;margin-bottom:6px;line-height:1.4;}' +
+    '.qr{font-size:12px;color:#333;line-height:1.6;white-space:pre-wrap;min-height:30px;}' +
+    'table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:1rem;}' +
+    'th{text-align:left;font-size:9px;color:#888;text-transform:uppercase;padding:3px 5px;border-bottom:1px solid #ddd;}' +
+    'td{padding:3px 5px;border-bottom:1px solid #f0f0f0;}' +
+    '.I{background:#1a4d2e;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.B{background:#2d7a4f;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.R{background:#e07b00;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.F{background:#c0392b;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.N{background:#9b9b95;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.S{background:#2d7a4f;color:#fff;padding:1px 3px;border-radius:3px;font-weight:700;font-size:9px;}' +
+    '.hdr{background:#1a4f8a;color:#fff;padding:8px 10px;border-radius:4px 4px 0 0;}' +
+    '.hdr-sub{font-size:9px;opacity:0.8;}.hdr-casal{font-size:13px;font-weight:700;}' +
+    '.leg{font-size:9px;color:#888;padding:4px 6px;border:1px solid #eee;border-top:none;margin-bottom:1rem;}' +
+    '.page-break{page-break-before:always;}</style>';
+
+  var body = '<h1>ENS - PCEs — Relatório Anual</h1>';
+  body += '<p class="sub">Casal: ' + casal + (userName ? ' &middot; ' + userName : '') + ' &middot; ' + tabelaReunioes.length + ' reuniões</p>';
+
+  // Tabela completa
+  body += '<div class="hdr"><div class="hdr-sub">Equipe 18 — Nossa Senhora de Lourdes — Setor A — Região Brasília IV</div>';
+  body += '<div class="hdr-casal">Casal: ' + casal + '</div></div>';
+  body += '<div class="leg">I=Intenso &nbsp; B=Bom &nbsp; R=Regular &nbsp; F=Fraco &nbsp; N=Nenhum &nbsp; S=Sim</div>';
+  body += buildFolhaPartilhaPDFTable();
+
+  // Respostas por reunião
+  body += '<div class="page-break"></div>';
+  body += '<h2>Respostas do Tema de Estudos por Reunião</h2>';
+
+  cycles.forEach(function(c, ci) {
+    var temaData = c.tema || {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
+    var respostas = c.temaRespostas || (c.tema && c.tema.respostas) || {};
+    var temResp = temRespostasPreenchidas(respostas);
+    body += '<h3>Reunião ' + (ci+1) + ' — ' + fmtDate(c.start) + ' a ' + fmtDate(c.end) + '</h3>';
+    body += '<p style="font-size:11px;color:#666;margin-bottom:8px;">' + (temaData.titulo||'') + ' &middot; ' + (temaData.mes||'') + '</p>';
+    if (!temResp) {
+      body += '<p style="font-size:12px;color:#9b9b95;font-style:italic;margin-bottom:12px;">(Sem respostas registradas)</p>';
+    } else {
+      (temaData.perguntas||[]).forEach(function(q, i) {
+        var r = respostas[i] || '';
+        body += '<div class="qb"><div class="qn">Pergunta ' + (i+1) + '</div>' +
+          '<div class="qt">' + q + '</div>' +
+          '<div class="qr">' + r.replace(/</g,'&lt;') + '</div></div>';
+      });
+    }
+  });
+
+  var htmlFull = '<!DOCTYPE html><html><head><meta charset="UTF-8">' + css + '</head><body>' + body + '</body></html>';
+  var w = window.open('', '_blank');
+  if (w) { w.document.write(htmlFull); w.document.close(); setTimeout(function() { w.print(); }, 700); }
+}
+
+function confirmarNovoAno() {
+  document.getElementById('modal-novo-ano').style.display = 'flex';
+}
+
+function executarNovoAno() {
+  // Zera reunioes da partilha e ciclos
+  tabelaReunioes = [];
+  lsSet('tabela_reunioes', tabelaReunioes);
+  cycles = [];
+  lsSet('cycles', cycles);
+  cycleStart = todayStr();
+  lsSet('cycleStart', cycleStart);
+  records = {};
+  lsSet('records', records);
+  checked = {};
+  lsSet('day_' + todayStr(), checked);
+  closeModal('modal-novo-ano');
+  renderList(PCE, 'list-pce');
+  renderList(VE, 'list-ve');
+  renderTabela();
+  renderStats();
+  goTo('checklist');
 }
 
 // ---- Init ----
