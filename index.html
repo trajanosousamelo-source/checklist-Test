@@ -1119,7 +1119,6 @@ function novaReuniao() {
   if (tabelaReunioes.length >= 10) return;
   var n = tabelaReunioes.length + 1;
   document.getElementById('modal-reuniao-titulo').textContent = 'Encerrar Reunião ' + n;
-  // Get current notas from records (eu)
   var notasEu = getNotasAtuais();
   _reuniaoNotas = {};
   TABELA_ITEMS.forEach(function(item) {
@@ -1127,39 +1126,110 @@ function novaReuniao() {
   });
   var conjuge = tabelaConfig.conjuge || 'Cônjuge';
   var eu = tabelaConfig.genero;
-  var body = '<div style="margin-bottom:12px;">';
-  body += '<label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;">Data da reunião:</label>';
-  body += '<input type="date" id="inp-reuniao-data" value="' + todayStr() + '" style="width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />';
-  body += '</div>';
-  body += '<div style="background:var(--blue-bg);border:0.5px solid var(--blue-border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--blue);">Suas notas foram calculadas automaticamente. Você pode alterá-las se necessário, e informe as notas do cônjuge.</div>';
-  var grupos = [{label:'Pontos Concretos de Esforço', grupo:'PCE'}, {label:'Vida em Equipe', grupo:'VE'}];
+
+  // Build modal body using DOM
+  var container = document.getElementById('modal-reuniao-body');
+  container.innerHTML = '';
+
+  // Date field
+  var dateDiv = document.createElement('div');
+  dateDiv.style.marginBottom = '12px';
+  var dateLbl = document.createElement('label');
+  dateLbl.style.cssText = 'font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;';
+  dateLbl.textContent = 'Data da reunião:';
+  var dateInp = document.createElement('input');
+  dateInp.type = 'date';
+  dateInp.id = 'inp-reuniao-data';
+  dateInp.value = todayStr();
+  dateInp.style.cssText = 'width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;';
+  dateDiv.appendChild(dateLbl);
+  dateDiv.appendChild(dateInp);
+  container.appendChild(dateDiv);
+
+  // Info box
+  var infoDiv = document.createElement('div');
+  infoDiv.style.cssText = 'background:var(--blue-bg);border:0.5px solid var(--blue-border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--blue);';
+  infoDiv.textContent = 'Suas notas foram calculadas automaticamente. Você pode alterá-las se necessário e informar as notas do cônjuge.';
+  container.appendChild(infoDiv);
+
+  var grupos = [
+    {label:'Pontos Concretos de Esforço', grupo:'PCE'},
+    {label:'Vida em Equipe', grupo:'VE'}
+  ];
+
   grupos.forEach(function(g) {
-    body += '<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">' + g.label + '</div>';
-    TABELA_ITEMS.filter(function(it) { return it.grupo===g.grupo; }).forEach(function(item) {
+    var grpLbl = document.createElement('div');
+    grpLbl.style.cssText = 'font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;';
+    grpLbl.textContent = g.label;
+    container.appendChild(grpLbl);
+
+    TABELA_ITEMS.filter(function(it) { return it.grupo === g.grupo; }).forEach(function(item) {
       var notaEu = _reuniaoNotas[item.id].eu;
-      body += '<div style="background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;">';
-      body += '<div style="font-size:13px;font-weight:700;margin-bottom:8px;">' + item.label + '</div>';
-      body += '<div style="display:flex;gap:12px;">';
-      // Eu — editable, pre-filled with auto nota
-      body += '<div style="flex:1;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">' + eu + '</div>';
-      body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-eu-' + item.id + '">';
+
+      var block = document.createElement('div');
+      block.style.cssText = 'background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;';
+
+      var title = document.createElement('div');
+      title.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:8px;';
+      title.textContent = item.label;
+      block.appendChild(title);
+
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:12px;';
+
+      // Eu column
+      var euCol = document.createElement('div');
+      euCol.style.flex = '1';
+      var euLbl = document.createElement('div');
+      euLbl.style.cssText = 'font-size:10px;color:var(--text3);margin-bottom:4px;';
+      euLbl.textContent = eu;
+      euCol.appendChild(euLbl);
+      var euBtns = document.createElement('div');
+      euBtns.style.cssText = 'display:flex;gap:3px;flex-wrap:wrap;';
+      euBtns.id = 'notas-eu-' + item.id;
       NOTAS_OPTIONS.forEach(function(opt) {
-        var sel = notaEu === opt ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
-        body += '<button onclick="setNotaTabela(\"' + item.id + '\",\"eu\",\"' + opt + '\")" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+        var btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.cssText = 'padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;';
+        btn.style.background = notaEu === opt ? 'var(--text)' : 'var(--surface)';
+        btn.style.color = notaEu === opt ? '#fff' : 'var(--text)';
+        btn.onclick = (function(id, o) {
+          return function() { setNotaTabela(id, 'eu', o); };
+        })(item.id, opt);
+        euBtns.appendChild(btn);
       });
-      body += '</div></div>';
-      // Conjuge — editable
-      body += '<div style="flex:1;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">' + conjuge + '</div>';
-      body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-cj-' + item.id + '">';
+      euCol.appendChild(euBtns);
+      row.appendChild(euCol);
+
+      // Conjuge column
+      var cjCol = document.createElement('div');
+      cjCol.style.flex = '1';
+      var cjLbl = document.createElement('div');
+      cjLbl.style.cssText = 'font-size:10px;color:var(--text3);margin-bottom:4px;';
+      cjLbl.textContent = conjuge;
+      cjCol.appendChild(cjLbl);
+      var cjBtns = document.createElement('div');
+      cjBtns.style.cssText = 'display:flex;gap:3px;flex-wrap:wrap;';
+      cjBtns.id = 'notas-cj-' + item.id;
       NOTAS_OPTIONS.forEach(function(opt) {
-        var sel = opt === '-' ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
-        body += '<button onclick="setNotaTabela(\"' + item.id + '\",\"conjuge\",\"' + opt + '\")" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+        var btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.cssText = 'padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;';
+        btn.style.background = opt === '-' ? 'var(--text)' : 'var(--surface)';
+        btn.style.color = opt === '-' ? '#fff' : 'var(--text)';
+        btn.onclick = (function(id, o) {
+          return function() { setNotaTabela(id, 'conjuge', o); };
+        })(item.id, opt);
+        cjBtns.appendChild(btn);
       });
-      body += '</div></div>';
-      body += '</div></div>';
+      cjCol.appendChild(cjBtns);
+      row.appendChild(cjCol);
+
+      block.appendChild(row);
+      container.appendChild(block);
     });
   });
-  document.getElementById('modal-reuniao-body').innerHTML = body;
+
   document.getElementById('modal-reuniao').style.display = 'flex';
 }
 
