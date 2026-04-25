@@ -122,7 +122,6 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <button class="tab active" onclick="goTo('checklist')">PCEs</button>
     <button class="tab" onclick="goTo('stats')">Estatísticas</button>
     <button class="tab" onclick="goTo('tema')">Tema</button>
-    <button class="tab" onclick="goTo('history')">Histórico</button>
     <button class="tab" onclick="goTo('tabela')">Partilha</button>
   </div>
 
@@ -172,9 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div id="preview-content"></div>
   </div>
 
-  <div id="page-history" class="page">
-    <div id="hist-list"></div>
-  </div>
+
 </div>
 
   <div id="page-tabela" class="page">
@@ -206,10 +203,9 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
         </div>
       </div>
       <div id="tabela-resumo"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button onclick="exportTabelaPNG()" style="flex:1;padding:10px;font-size:12px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Exportar PNG</button>
-        <button onclick="exportTabelaExcel()" style="flex:1;padding:10px;font-size:12px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Exportar Excel</button>
-      </div>
+      <div class="section-label" style="margin-top:1rem;">Reuniões encerradas</div>
+      <div id="reunioes-partilha"></div>
+      <button onclick="iniciarGeracaoRelatorio()" style="width:100%;margin-top:12px;padding:12px;background:var(--blue);border:none;border-radius:var(--radius);font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Gerar Relatório</button>
     </div>
   </div>
 
@@ -255,6 +251,55 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="modal-btns">
       <button class="btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
       <button class="btn-danger" onclick="confirmDelete()">Apagar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-tema-check" style="display:none;">
+  <div class="modal">
+    <h2>Tema de Estudos</h2>
+    <p id="tema-check-msg">Você já respondeu às perguntas do Tema de Estudos?</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="temaCheckResposta('nao')">Não</button>
+      <button class="btn-primary" onclick="temaCheckResposta('sim')">Sim</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-tema-opcao" style="display:none;">
+  <div class="modal">
+    <h2>O que deseja fazer?</h2>
+    <p>Você ainda não respondeu às perguntas do Tema. Deseja respondê-las antes ou gerar o relatório assim mesmo?</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="temaOpcaoResposta('gerar')">Gerar assim mesmo</button>
+      <button class="btn-primary" onclick="temaOpcaoResposta('responder')">Responder perguntas</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-reuniao-tema" style="display:none;">
+  <div class="modal">
+    <h2 id="modal-reuniao-tema-titulo">Respostas do Tema</h2>
+    <p id="modal-reuniao-tema-sub"></p>
+    <div id="modal-reuniao-tema-body"></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('modal-reuniao-tema')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarRespostaReuniao()">Salvar respostas</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-relatorio-export" style="display:none;">
+  <div class="modal">
+    <h2>Relatório gerado!</h2>
+    <p>Escolha o formato para exportar:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+      <button onclick="exportRelatorio('pdf')" style="padding:11px;font-size:13px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">PDF (imprimir/salvar)</button>
+      <button onclick="exportRelatorio('png')" style="padding:11px;font-size:13px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Imagem PNG</button>
+      <button onclick="exportRelatorio('excel')" style="padding:11px;font-size:13px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Planilha Excel</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('modal-relatorio-export')">Fechar</button>
     </div>
   </div>
 </div>
@@ -394,8 +439,7 @@ function saveToday() {
   // Refresh tabela se estiver configurada
   var resumo = document.getElementById('tabela-resumo');
   if (tabelaConfig && resumo) resumo.innerHTML = buildFolhaPartilhaHTML(false);
-  var statsTabela = document.getElementById('stats-tabela-preview');
-  if (tabelaConfig && statsTabela) statsTabela.innerHTML = buildFolhaPartilhaHTML(false);
+
 }
 
 // ---- Tema ----
@@ -670,8 +714,245 @@ function renderHistory() {
   }).join('');
 }
 
-// ---- Exports ----
-function exportPDF() { showPreviewPDF(); }
+// ---- Variaveis de relatorio ----
+var _relatorioAtual = null; // {tabela, tema, reuniaoIdx}
+var _relatorioComRespostas = false;
+
+// ---- Fluxo de geracao do relatorio (partilha atual) ----
+function iniciarGeracaoRelatorio() {
+  _relatorioAtual = {tipo: 'atual'};
+  document.getElementById('modal-tema-check').style.display = 'flex';
+}
+
+function temaCheckResposta(resp) {
+  closeModal('modal-tema-check');
+  if (resp === 'sim') {
+    _relatorioComRespostas = true;
+    prepararRelatorio(true);
+  } else {
+    document.getElementById('modal-tema-opcao').style.display = 'flex';
+  }
+}
+
+function temaOpcaoResposta(opcao) {
+  closeModal('modal-tema-opcao');
+  if (opcao === 'responder') {
+    goTo('tema');
+  } else {
+    _relatorioComRespostas = false;
+    prepararRelatorio(false);
+  }
+}
+
+// ---- Relatorio por reuniao encerrada ----
+function gerarRelatorioReuniao(idx) {
+  _relatorioAtual = {tipo: 'reuniao', idx: idx};
+  var c = cycles[idx];
+  var temRespostas = c.temaRespostas && Object.keys(c.temaRespostas).some(function(k) { return c.temaRespostas[k]; });
+  if (temRespostas) {
+    _relatorioComRespostas = true;
+    prepararRelatorio(true);
+  } else {
+    document.getElementById('modal-tema-check').style.display = 'flex';
+  }
+}
+
+function prepararRelatorio(comRespostas) {
+  var tabelaHTML = buildFolhaPartilhaHTML(true);
+  var temaData, respostas;
+  if (_relatorioAtual.tipo === 'atual') {
+    temaData = {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
+    respostas = comRespostas ? getTemaRespostas() : null;
+  } else {
+    var c = cycles[_relatorioAtual.idx];
+    temaData = c.tema || {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
+    respostas = comRespostas ? (c.temaRespostas || c.tema && c.tema.respostas || {}) : null;
+  }
+  _relatorioAtual.tabelaHTML = tabelaHTML;
+  _relatorioAtual.temaData = temaData;
+  _relatorioAtual.respostas = respostas;
+  document.getElementById('modal-relatorio-export').style.display = 'flex';
+}
+
+function exportRelatorio(formato) {
+  var temaData = _relatorioAtual.temaData || {};
+  var respostas = _relatorioAtual.respostas;
+  var casal = tabelaConfig ? tabelaConfig.casal : '';
+
+  if (formato === 'pdf') {
+    var css = '<style>body{font-family:Arial,sans-serif;padding:1.5rem;color:#1a1a18;max-width:750px;margin:0 auto;}' +
+      'h1{font-size:18px;margin-bottom:3px;}.sub{font-size:11px;color:#888;margin-bottom:1.5rem;}' +
+      'h2{font-size:14px;margin:1.5rem 0 8px;color:#1a4f8a;border-bottom:1px solid #ddd;padding-bottom:4px;}' +
+      '.qb{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #f0f0f0;}' +
+      '.qn{font-size:10px;color:#888;text-transform:uppercase;margin-bottom:3px;}' +
+      '.qt{font-size:13px;font-weight:bold;margin-bottom:6px;line-height:1.4;}' +
+      '.qr{font-size:12px;color:#333;line-height:1.6;white-space:pre-wrap;min-height:40px;border-bottom:1px solid #ddd;padding-bottom:4px;}' +
+      'table{width:100%;border-collapse:collapse;font-size:10px;}' +
+      'th{text-align:left;font-size:9px;color:#888;text-transform:uppercase;padding:3px 5px;border-bottom:1px solid #ddd;}' +
+      'td{padding:4px 5px;border-bottom:1px solid #f0f0f0;}' +
+      '.I{background:#1a4d2e;color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}' +
+      '.B{background:#2d7a4f;color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}' +
+      '.R{background:#e07b00;color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}' +
+      '.F{background:#c0392b;color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}' +
+      '.N,.S{background:#9b9b95;color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:9px;}' +
+      '.S{background:#2d7a4f;}' +
+      '.hdr{background:#1a4f8a;color:#fff;padding:8px 10px;border-radius:4px 4px 0 0;}' +
+      '.hdr-sub{font-size:9px;opacity:0.8;}.hdr-casal{font-size:13px;font-weight:700;}' +
+      '.leg{font-size:9px;color:#888;padding:4px 6px;border:1px solid #eee;border-top:none;margin-bottom:1rem;}</style>';
+    var body = '<h1>ENS - PCEs — Folha da Partilha</h1>';
+    body += '<p class="sub">Casal: ' + casal + (userName ? ' &middot; ' + userName : '') + '</p>';
+    // Tabela
+    body += '<div class="hdr"><div class="hdr-sub">Equipe 18 — Nossa Senhora de Lourdes — Setor A — Região Brasília IV</div><div class="hdr-casal">Casal: ' + casal + '</div></div>';
+    body += '<div class="leg">I=Intenso &nbsp; B=Bom &nbsp; R=Regular &nbsp; F=Fraco &nbsp; N=Nenhum &nbsp; S=Sim</div>';
+    body += buildFolhaPartilhaPDFTable();
+    // Tema
+    body += '<h2>Tema de Estudos — ' + (temaData.mes || '') + '</h2>';
+    body += '<p style="font-size:12px;color:#444;margin-bottom:1rem;">' + (temaData.titulo || '') + '</p>';
+    (temaData.perguntas || []).forEach(function(q, i) {
+      var r = respostas ? (respostas[i] || '') : '';
+      body += '<div class="qb"><div class="qn">Pergunta ' + (i+1) + '</div>' +
+        '<div class="qt">' + q + '</div>' +
+        '<div class="qr">' + r.replace(/</g, '&lt;') + '</div></div>';
+    });
+    var html2 = '<!DOCTYPE html><html><head><meta charset="UTF-8">' + css + '</head><body>' + body + '</body></html>';
+    var w = window.open('', '_blank');
+    if (w) { w.document.write(html2); w.document.close(); setTimeout(function() { w.print(); }, 600); }
+    closeModal('modal-relatorio-export');
+
+  } else if (formato === 'png') {
+    closeModal('modal-relatorio-export');
+    var el = document.getElementById('tabela-visual');
+    if (!el) { alert('Abra a aba Partilha antes de exportar PNG.'); return; }
+    html2canvas(el, {backgroundColor:'#ffffff', scale:2}).then(function(canvas) {
+      var a = document.createElement('a');
+      a.download = (casal ? casal.replace(/\s+/g,'-') + '-' : '') + 'ENS-Folha-Partilha.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+
+  } else if (formato === 'excel') {
+    var wb = XLSX.utils.book_new();
+    // Aba tabela
+    var header = ['PCEs / Reuniões'];
+    tabelaReunioes.forEach(function(r,i){header.push('R'+(i+1)+' Ela');header.push('R'+(i+1)+' Ele');});
+    var rows = [header];
+    var dateRow = ['Data'];
+    tabelaReunioes.forEach(function(r){dateRow.push(fmtDate(r.data));dateRow.push('');});
+    rows.push(dateRow);
+    var grupos2 = [
+      {label:'--- PCE ---', items:TABELA_ITEMS.filter(function(it){return it.grupo==='PCE';})},
+      {label:'--- VE ---',  items:TABELA_ITEMS.filter(function(it){return it.grupo==='VE';})}
+    ];
+    grupos2.forEach(function(g){
+      rows.push([g.label]);
+      g.items.forEach(function(item){
+        var row=[item.label];
+        tabelaReunioes.forEach(function(r){
+          row.push(r.notas&&r.notas[item.id]?r.notas[item.id].eu:'-');
+          row.push(r.notas&&r.notas[item.id]?r.notas[item.id].conjuge:'-');
+        });
+        rows.push(row);
+      });
+    });
+    var ws1=XLSX.utils.aoa_to_sheet(rows);
+    ws1['!cols']=[{wch:28}];
+    for(var ii=0;ii<tabelaReunioes.length*2;ii++) ws1['!cols'].push({wch:10});
+    XLSX.utils.book_append_sheet(wb,ws1,'Folha da Partilha');
+    // Aba tema
+    if (temaData.perguntas && temaData.perguntas.length) {
+      var th=[['Usuário','Tema','Mês','Pergunta','Resposta']];
+      var tr2=temaData.perguntas.map(function(q,i){
+        return [userName||'', temaData.titulo||'', temaData.mes||'', q, respostas?(respostas[i]||''):''];
+      });
+      var ws2=XLSX.utils.aoa_to_sheet(th.concat(tr2));
+      ws2['!cols']=[{wch:16},{wch:30},{wch:14},{wch:50},{wch:60}];
+      XLSX.utils.book_append_sheet(wb,ws2,'Tema de Estudos');
+    }
+    XLSX.writeFile(wb,(casal?casal.replace(/\s+/g,'-')+'-':'')+'ENS-Relatorio.xlsx');
+    closeModal('modal-relatorio-export');
+  }
+}
+
+function buildFolhaPartilhaPDFTable() {
+  var s = '<table><thead><tr><th style="min-width:110px;">Item</th>';
+  for(var i=0;i<10;i++){
+    var r=tabelaReunioes[i];
+    var data=r?fmtDate(r.data):'';
+    s+='<th colspan="2" style="text-align:center;border-left:1px solid #eee;">'+(i+1)+(data?'<br/><span style="font-weight:400;font-size:8px;">'+data+'</span>':'')+'</th>';
+  }
+  s+='</tr><tr><th></th>';
+  for(var j=0;j<10;j++) s+='<th style="text-align:center;border-left:1px solid #eee;font-size:8px;">Ela</th><th style="text-align:center;font-size:8px;">Ele</th>';
+  s+='</tr></thead><tbody>';
+  var grupos=[
+    {label:'Pontos Concretos de Esforço',items:TABELA_ITEMS.filter(function(it){return it.grupo==='PCE';})},
+    {label:'Vida em Equipe',items:TABELA_ITEMS.filter(function(it){return it.grupo==='VE';})}
+  ];
+  grupos.forEach(function(g){
+    s+='<tr><td colspan="21" style="padding:3px 5px;font-size:8px;font-weight:700;color:#9b9b95;text-transform:uppercase;background:#f5f4f0;">'+g.label+'</td></tr>';
+    g.items.forEach(function(item){
+      s+='<tr><td style="padding:3px 5px;">'+item.label+'</td>';
+      for(var k=0;k<10;k++){
+        var rk=tabelaReunioes[k];
+        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        s+='<td style="text-align:center;border-left:1px solid #eee;">'+(ne?'<span class="'+ne+'">'+ne+'</span>':'')+'</td>';
+        s+='<td style="text-align:center;">'+(nc?'<span class="'+nc+'">'+nc+'</span>':'')+'</td>';
+      }
+      s+='</tr>';
+    });
+  });
+  s+='</tbody></table>';
+  return s;
+}
+
+// ---- Editar respostas de reuniao encerrada ----
+function editarRespostasReuniao(idx) {
+  var c = cycles[idx];
+  var temaData = c.tema || {titulo: TEMA_TITULO, mes: TEMA_MES, perguntas: TEMA_PERGUNTAS};
+  var respostas = c.temaRespostas || {};
+  document.getElementById('modal-reuniao-tema-titulo').textContent = 'Tema — ' + (temaData.mes || '');
+  document.getElementById('modal-reuniao-tema-sub').textContent = temaData.titulo || '';
+  var body = document.getElementById('modal-reuniao-tema-body');
+  body.innerHTML = '';
+  (temaData.perguntas || []).forEach(function(q, i) {
+    var div = document.createElement('div');
+    div.style.cssText = 'margin-bottom:12px;';
+    var num = document.createElement('div');
+    num.style.cssText = 'font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;';
+    num.textContent = 'Pergunta ' + (i+1);
+    var qtxt = document.createElement('div');
+    qtxt.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:6px;line-height:1.4;';
+    qtxt.textContent = q;
+    var ta = document.createElement('textarea');
+    ta.style.cssText = 'width:100%;min-height:70px;padding:8px 10px;font-size:12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;resize:vertical;outline:none;';
+    ta.id = 'reuniao-tema-resp-' + i;
+    ta.value = respostas[i] || '';
+    div.appendChild(num);
+    div.appendChild(qtxt);
+    div.appendChild(ta);
+    body.appendChild(div);
+  });
+  document.getElementById('modal-reuniao-tema').dataset.idx = idx;
+  document.getElementById('modal-reuniao-tema').style.display = 'flex';
+}
+
+function salvarRespostaReuniao() {
+  var idx = parseInt(document.getElementById('modal-reuniao-tema').dataset.idx);
+  var c = cycles[idx];
+  var temaData = c.tema || {perguntas: TEMA_PERGUNTAS};
+  var respostas = {};
+  (temaData.perguntas || []).forEach(function(_, i) {
+    var el = document.getElementById('reuniao-tema-resp-' + i);
+    respostas[i] = el ? el.value : '';
+  });
+  cycles[idx].temaRespostas = respostas;
+  lsSet('cycles', cycles);
+  closeModal('modal-reuniao-tema');
+  renderReunioesPartilha();
+}
+
+// ---- Exports (mantidos para compatibilidade) ----
+function exportPDF() { iniciarGeracaoRelatorio(); }
 function buildTabelaPreviewHTML() {
   if (!tabelaConfig) return '';
   return buildFolhaPartilhaHTML(true);
@@ -810,15 +1091,14 @@ function saveName() {
 }
 
 function goTo(page) {
-  ['checklist','stats','tema','history','tabela','preview'].forEach(function(p, i) {
+  ['checklist','stats','tema','tabela','preview'].forEach(function(p, i) {
     var el = document.getElementById('page-' + p);
     if (el) el.classList.toggle('active', p === page);
-    if (i < 5) document.querySelectorAll('.tab')[i].classList.toggle('active', p === page);
+    if (i < 4) document.querySelectorAll('.tab')[i].classList.toggle('active', p === page);
   });
   if (page === 'stats')   renderStats();
   if (page === 'tema')    renderTema();
-  if (page === 'history') renderHistory();
-  if (page === 'tabela') renderTabela();
+  if (page === 'tabela')  renderTabela();
 }
 
 function showPreview(htmlContent, fromPage) {
@@ -897,6 +1177,7 @@ function renderTabela() {
     btnNova.textContent = 'Encerrar reunião ' + (tabelaReunioes.length + 1) + ' e iniciar próxima';
   }
   renderTabelaResumo();
+  renderReunioesPartilha();
 }
 
 function renderTabelaResumo() {
