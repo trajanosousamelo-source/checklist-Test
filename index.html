@@ -129,10 +129,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <p id="today-label"></p>
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="goTo('checklist')">Checklist</button>
+    <button class="tab active" onclick="goTo('checklist')">PCEs</button>
     <button class="tab" onclick="goTo('stats')">Estatísticas</button>
     <button class="tab" onclick="goTo('tema')">Tema</button>
     <button class="tab" onclick="goTo('history')">Histórico</button>
+    <button class="tab" onclick="goTo('tabela')">Tabela</button>
   </div>
 
   <div id="page-checklist" class="page active">
@@ -202,6 +203,45 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 </div>
 
+  <div id="page-tabela" class="page">
+    <div id="tabela-config" style="display:none;">
+      <div class="filter-box">
+        <div class="filter-title">Configuração do casal</div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;">Você é:</label>
+          <div style="display:flex;gap:8px;">
+            <button id="btn-ela" onclick="setGenero('Ela')" style="flex:1;padding:9px;font-size:13px;font-weight:700;border-radius:var(--radius);border:1.5px solid var(--border2);background:var(--surface2);cursor:pointer;">Ela</button>
+            <button id="btn-ele" onclick="setGenero('Ele')" style="flex:1;padding:9px;font-size:13px;font-weight:700;border-radius:var(--radius);border:1.5px solid var(--border2);background:var(--surface2);cursor:pointer;">Ele</button>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;">Nome do cônjuge:</label>
+          <input type="text" id="inp-conjuge" placeholder="Nome do cônjuge" style="width:100%;padding:9px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;">Nome do casal:</label>
+          <input type="text" id="inp-casal" placeholder="Ex: João e Maria" style="width:100%;padding:9px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />
+        </div>
+        <button onclick="saveConfig()" style="width:100%;padding:11px;background:var(--text);border:none;border-radius:var(--radius);font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Salvar configuração</button>
+      </div>
+    </div>
+    <div id="tabela-main" style="display:none;">
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:1rem;">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Casal</div>
+        <div style="font-size:15px;font-weight:700;" id="tabela-casal-nome"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button onclick="showConfig()" style="flex:1;padding:7px;font-size:12px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Editar config.</button>
+          <button onclick="novaReuniao()" id="btn-nova-reuniao" style="flex:1;padding:7px;font-size:12px;font-weight:700;border-radius:var(--radius);border:none;background:var(--green);cursor:pointer;color:#fff;">+ Nova reunião</button>
+        </div>
+      </div>
+      <div id="tabela-resumo"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="exportTabelaPNG()" style="flex:1;padding:10px;font-size:12px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Exportar PNG</button>
+        <button onclick="exportTabelaExcel()" style="flex:1;padding:10px;font-size:12px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--surface2);cursor:pointer;color:var(--text);">Exportar Excel</button>
+      </div>
+    </div>
+  </div>
+
 <div class="overlay" id="modal-name">
   <div class="modal">
     <h2>Bem-vindo!</h2>
@@ -244,6 +284,18 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="modal-btns">
       <button class="btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
       <button class="btn-danger" onclick="confirmDelete()">Apagar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-reuniao" style="display:none;">
+  <div class="modal">
+    <h2 id="modal-reuniao-titulo">Reunião</h2>
+    <p>Informe as notas desta reunião. As notas do cônjuge devem ser digitadas manualmente.</p>
+    <div id="modal-reuniao-body"></div>
+    <div class="modal-btns" style="margin-top:1rem;">
+      <button class="btn-secondary" onclick="closeModal('modal-reuniao')">Cancelar</button>
+      <button class="btn-primary" onclick="confirmarReuniao()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -673,42 +725,61 @@ function renderHistory() {
 
 // ---- Exports ----
 function exportPDF() { showPreviewPDF(); }
+function buildTabelaPreviewHTML() {
+  if (!tabelaReunioes.length) return '';
+  var eu = tabelaConfig ? tabelaConfig.genero : 'Eu';
+  var conjuge = tabelaConfig ? (tabelaConfig.conjuge || 'Conjuge') : 'Conjuge';
+  var casal = tabelaConfig ? (tabelaConfig.casal || '') : '';
+  var s = '<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;">';
+  s += '<div style="background:#1a4f8a;color:#fff;padding:10px 12px;border-radius:8px;margin-bottom:12px;">';
+  s += '<div style="font-size:10px;opacity:0.8;margin-bottom:2px;">Equipe 18 — Nossa Senhora de Lourdes — Setor A — Região Brasília IV</div>';
+  s += '<div style="font-size:14px;font-weight:700;">Casal: ' + casal + '</div>';
+  s += '<div style="font-size:10px;opacity:0.8;margin-top:4px;">I=Intenso &nbsp; B=Bom &nbsp; R=Regular &nbsp; F=Fraco &nbsp; N=Nenhum &nbsp; S=Sim</div>';
+  s += '</div>';
+  s += '<div style="overflow-x:auto;">';
+  s += '<table style="width:100%;border-collapse:collapse;font-size:11px;">';
+  // Header reunioes
+  s += '<thead><tr><th style="text-align:left;padding:5px 6px;border-bottom:1px solid #ddd;min-width:130px;">PCEs</th>';
+  tabelaReunioes.forEach(function(r, i) {
+    s += '<th colspan="2" style="text-align:center;padding:4px 2px;border-bottom:1px solid #ddd;border-left:1px solid #eee;font-size:10px;">';
+    s += (i+1) + '<br/><span style="font-weight:400;font-size:9px;">' + (r.data ? fmtDate(r.data) : '') + '</span></th>';
+  });
+  s += '</tr><tr><th style="padding:3px 6px;border-bottom:1px solid #ddd;"></th>';
+  tabelaReunioes.forEach(function() {
+    s += '<th style="text-align:center;padding:3px 3px;border-bottom:1px solid #ddd;border-left:1px solid #eee;font-size:9px;width:24px;">' + eu + '</th>';
+    s += '<th style="text-align:center;padding:3px 3px;border-bottom:1px solid #ddd;font-size:9px;width:24px;">' + conjuge + '</th>';
+  });
+  s += '</tr></thead><tbody>';
+  var grupos = [
+    {label:'Pontos Concretos de Esforço', items: TABELA_ITEMS.filter(function(it){return it.grupo==='PCE';})},
+    {label:'Vida em Equipe',              items: TABELA_ITEMS.filter(function(it){return it.grupo==='VE';})}
+  ];
+  grupos.forEach(function(g) {
+    var colspan = 1 + tabelaReunioes.length * 2;
+    s += '<tr><td colspan="' + colspan + '" style="padding:5px 6px;font-size:9px;font-weight:700;color:#9b9b95;text-transform:uppercase;letter-spacing:0.07em;background:#f5f4f0;">' + g.label + '</td></tr>';
+    g.items.forEach(function(item) {
+      s += '<tr><td style="padding:5px 6px;font-size:11px;border-bottom:0.5px solid #f0f0f0;">' + item.label + '</td>';
+      tabelaReunioes.forEach(function(r) {
+        var ne = r.notas && r.notas[item.id] ? r.notas[item.id].eu : '-';
+        var nc = r.notas && r.notas[item.id] ? r.notas[item.id].conjuge : '-';
+        var bge = notaBg(ne); var bgc = notaBg(nc);
+        s += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid #f0f0f0;border-left:0.5px solid #eee;">';
+        s += '<span style="background:' + bge + ';color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:10px;">' + ne + '</span></td>';
+        s += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid #f0f0f0;">';
+        s += '<span style="background:' + bgc + ';color:#fff;padding:1px 4px;border-radius:3px;font-weight:700;font-size:10px;">' + nc + '</span></td>';
+      });
+      s += '</tr>';
+    });
+  });
+  s += '</tbody></table></div></div>';
+  return s;
+}
+
 function buildCyclePreviewHTML(c, ci) {
-  var rows = c.rows || buildRowsWithNotas(Object.keys(c.records).sort(), c.records, c.notas || null);
   var s = '';
 
-  // Page 1: Notas
-  s += '<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;">';
-  s += '<div style="font-size:10px;font-weight:700;color:#9b9b95;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Ciclo ' + (ci+1) + '</div>';
-  s += '<div style="font-size:15px;font-weight:700;margin-bottom:2px;">ENS - PCEs' + (userName ? ' — ' + userName : '') + '</div>';
-  s += '<div style="font-size:12px;color:#6b6b66;margin-bottom:14px;">' + fmtDate(c.start) + ' a ' + fmtDate(c.end) + '</div>';
-
-  // PCE section
-  s += '<div style="font-size:10px;font-weight:700;color:#9b9b95;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Pontos Concretos de Esforco</div>';
-  rows.filter(function(r) { return r.grupo === 'PCE'; }).forEach(function(r) {
-    var bg = {I:'#1a4d2e',B:'#2d7a4f',R:'#e07b00',F:'#c0392b',N:'#9b9b95',S:'#2d7a4f',NAO:'#c0392b'}[r.nota] || '#9b9b95';
-    var lbl = r.nota === 'NAO' ? 'N' : r.nota;
-    s += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);">';
-    s += '<span style="font-size:13px;">' + r.label + '</span>';
-    s += '<div style="display:flex;align-items:center;gap:8px;">';
-    s += '<span style="font-size:12px;color:#6b6b66;">' + r.pct + '</span>';
-    s += '<span style="background:' + bg + ';color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;">' + lbl + ' — ' + r.notaDesc + '</span>';
-    s += '</div></div>';
-  });
-
-  // VE section
-  s += '<div style="font-size:10px;font-weight:700;color:#9b9b95;text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 8px;">Vida em Equipe</div>';
-  rows.filter(function(r) { return r.grupo === 'VE'; }).forEach(function(r) {
-    var bg = {I:'#1a4d2e',B:'#2d7a4f',R:'#e07b00',F:'#c0392b',N:'#9b9b95',S:'#2d7a4f',NAO:'#c0392b'}[r.nota] || '#9b9b95';
-    var lbl = r.nota === 'NAO' ? 'N' : r.nota;
-    s += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);">';
-    s += '<span style="font-size:13px;">' + r.label + '</span>';
-    s += '<div style="display:flex;align-items:center;gap:8px;">';
-    s += '<span style="font-size:12px;color:#6b6b66;">' + r.pct + '</span>';
-    s += '<span style="background:' + bg + ';color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;">' + lbl + ' — ' + r.notaDesc + '</span>';
-    s += '</div></div>';
-  });
-  s += '</div>';
+  // Page 1: Tabela PCEs (substitui notas individuais)
+  s += buildTabelaPreviewHTML();
 
   // Page 2: Tema
   if (c.tema && c.tema.perguntas && c.tema.perguntas.length) {
@@ -835,14 +906,15 @@ function saveName() {
 }
 
 function goTo(page) {
-  ['checklist','stats','tema','history','preview'].forEach(function(p, i) {
+  ['checklist','stats','tema','history','tabela','preview'].forEach(function(p, i) {
     var el = document.getElementById('page-' + p);
     if (el) el.classList.toggle('active', p === page);
-    if (i < 4) document.querySelectorAll('.tab')[i].classList.toggle('active', p === page);
+    if (i < 5) document.querySelectorAll('.tab')[i].classList.toggle('active', p === page);
   });
   if (page === 'stats')   renderStats();
   if (page === 'tema')    renderTema();
   if (page === 'history') renderHistory();
+  if (page === 'tabela') renderTabela();
 }
 
 function showPreview(htmlContent, fromPage) {
@@ -858,6 +930,264 @@ function showPreview(htmlContent, fromPage) {
 
 function closePreview() {
   goTo(window._previewFrom || 'history');
+}
+
+// ---- Tabela PCEs ----
+var tabelaConfig = lsGet('tabela_config', null);
+var tabelaReunioes = lsGet('tabela_reunioes', []);
+var _reuniaoNotas = {};
+var _reuniaoData = '';
+
+var TABELA_ITEMS = [
+  {id:'escuta',    label:'Escuta da Palavra',         grupo:'PCE'},
+  {id:'meditacao', label:'Meditação',                 grupo:'PCE'},
+  {id:'regra',     label:'Regra de Vida',             grupo:'PCE'},
+  {id:'oracao',    label:'Oração Conjugal',           grupo:'PCE'},
+  {id:'sentar',    label:'Dever de Sentar-se',        grupo:'PCE'},
+  {id:'retiro',    label:'Retiro',                    grupo:'PCE'},
+  {id:'magnificat',label:'Magnificat',                grupo:'VE'},
+  {id:'tema',      label:'Tema de Estudo',            grupo:'VE'},
+  {id:'missa_r',   label:'Missa de Responsabilidade', grupo:'VE'},
+  {id:'carta',     label:'Carta Mensal',              grupo:'VE'},
+  {id:'missa_ens', label:'Missa Mensal - ENS',        grupo:'VE'}
+];
+
+var NOTAS_OPTIONS = ['I','B','R','F','N','S','-'];
+
+function renderTabela() {
+  if (!tabelaConfig) {
+    document.getElementById('tabela-config').style.display = 'block';
+    document.getElementById('tabela-main').style.display = 'none';
+    return;
+  }
+  document.getElementById('tabela-config').style.display = 'none';
+  document.getElementById('tabela-main').style.display = 'block';
+  document.getElementById('tabela-casal-nome').textContent = tabelaConfig.casal || 'Casal';
+  var btnNova = document.getElementById('btn-nova-reuniao');
+  if (tabelaReunioes.length >= 10) {
+    btnNova.disabled = true;
+    btnNova.style.opacity = '0.4';
+    btnNova.textContent = 'Máx. 10 reuniões';
+  } else {
+    btnNova.disabled = false;
+    btnNova.style.opacity = '1';
+    btnNova.textContent = '+ Nova reunião (' + tabelaReunioes.length + '/10)';
+  }
+  renderTabelaResumo();
+}
+
+function renderTabelaResumo() {
+  var cont = document.getElementById('tabela-resumo');
+  if (!tabelaReunioes.length) {
+    cont.innerHTML = '<div class="empty">Nenhuma reunião registrada ainda.</div>';
+    return;
+  }
+  var eu = tabelaConfig.genero;
+  var conjuge = tabelaConfig.conjuge || 'Cônjuge';
+  var html = '<div id="tabela-visual" style="background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">';
+  // Header
+  html += '<div style="background:#1a4f8a;color:#fff;padding:10px 12px;">';
+  html += '<div style="font-size:11px;font-weight:700;opacity:0.8;margin-bottom:2px;">Equipe 18 — Nossa Senhora de Lourdes — Setor A — Região Brasília IV</div>';
+  html += '<div style="font-size:14px;font-weight:700;">Casal: ' + (tabelaConfig.casal||'') + '</div>';
+  html += '</div>';
+  // Legenda
+  html += '<div style="padding:6px 12px;font-size:10px;color:var(--text3);border-bottom:0.5px solid var(--border);">I=Intenso &nbsp; B=Bom &nbsp; R=Regular &nbsp; F=Fraco &nbsp; N=Nenhum &nbsp; S=Sim</div>';
+  // Scrollable table
+  html += '<div style="overflow-x:auto;">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:' + (120 + tabelaReunioes.length * 52) + 'px;">';
+  // Header row
+  html += '<thead><tr>';
+  html += '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--text3);border-bottom:0.5px solid var(--border2);min-width:120px;">PCEs</th>';
+  tabelaReunioes.forEach(function(r, i) {
+    html += '<th colspan="2" style="text-align:center;padding:4px 2px;font-size:10px;color:var(--text3);border-bottom:0.5px solid var(--border2);border-left:0.5px solid var(--border);">';
+    html += (i+1) + '<br/><span style="font-weight:400;">' + (r.data||'') + '</span></th>';
+  });
+  html += '</tr>';
+  html += '<tr>';
+  html += '<th style="padding:4px 8px;border-bottom:0.5px solid var(--border2);"></th>';
+  tabelaReunioes.forEach(function() {
+    html += '<th style="text-align:center;padding:3px 4px;font-size:9px;color:var(--text3);border-bottom:0.5px solid var(--border2);border-left:0.5px solid var(--border);width:26px;">' + eu + '</th>';
+    html += '<th style="text-align:center;padding:3px 4px;font-size:9px;color:var(--text3);border-bottom:0.5px solid var(--border2);width:26px;">' + conjuge + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+  // Group: PCE
+  html += '<tr><td colspan="' + (1 + tabelaReunioes.length*2) + '" style="padding:5px 8px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;background:var(--surface2);">Pontos Concretos de Esforço</td></tr>';
+  TABELA_ITEMS.filter(function(it) { return it.grupo==='PCE'; }).forEach(function(item) {
+    html += '<tr>';
+    html += '<td style="padding:5px 8px;font-size:12px;border-bottom:0.5px solid var(--border);">' + item.label + '</td>';
+    tabelaReunioes.forEach(function(r) {
+      var ne = r.notas && r.notas[item.id] ? r.notas[item.id].eu : '-';
+      var nc = r.notas && r.notas[item.id] ? r.notas[item.id].conjuge : '-';
+      var bgE = notaBg(ne); var bgC = notaBg(nc);
+      html += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid var(--border);border-left:0.5px solid var(--border);"><span style="background:' + bgE + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:11px;">' + ne + '</span></td>';
+      html += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid var(--border);"><span style="background:' + bgC + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:11px;">' + nc + '</span></td>';
+    });
+    html += '</tr>';
+  });
+  // Group: VE
+  html += '<tr><td colspan="' + (1 + tabelaReunioes.length*2) + '" style="padding:5px 8px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;background:var(--surface2);">Vida em Equipe</td></tr>';
+  TABELA_ITEMS.filter(function(it) { return it.grupo==='VE'; }).forEach(function(item) {
+    html += '<tr>';
+    html += '<td style="padding:5px 8px;font-size:12px;border-bottom:0.5px solid var(--border);">' + item.label + '</td>';
+    tabelaReunioes.forEach(function(r) {
+      var ne = r.notas && r.notas[item.id] ? r.notas[item.id].eu : '-';
+      var nc = r.notas && r.notas[item.id] ? r.notas[item.id].conjuge : '-';
+      var bgE = notaBg(ne); var bgC = notaBg(nc);
+      html += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid var(--border);border-left:0.5px solid var(--border);"><span style="background:' + bgE + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:11px;">' + ne + '</span></td>';
+      html += '<td style="text-align:center;padding:4px 2px;border-bottom:0.5px solid var(--border);"><span style="background:' + bgC + ';color:#fff;padding:1px 5px;border-radius:3px;font-weight:700;font-size:11px;">' + nc + '</span></td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  cont.innerHTML = html;
+}
+
+function notaBg(n) {
+  var m = {I:'#1a4d2e',B:'#2d7a4f',R:'#e07b00',F:'#c0392b',N:'#9b9b95',S:'#2d7a4f'};
+  return m[n] || '#cccccc';
+}
+
+function setGenero(g) {
+  document.getElementById('btn-ela').style.background = g==='Ela' ? 'var(--text)' : 'var(--surface2)';
+  document.getElementById('btn-ela').style.color = g==='Ela' ? '#fff' : 'var(--text)';
+  document.getElementById('btn-ele').style.background = g==='Ele' ? 'var(--text)' : 'var(--surface2)';
+  document.getElementById('btn-ele').style.color = g==='Ele' ? '#fff' : 'var(--text)';
+  window._generoSelecionado = g;
+}
+
+function saveConfig() {
+  var conjuge = document.getElementById('inp-conjuge').value.trim();
+  var casal = document.getElementById('inp-casal').value.trim();
+  var genero = window._generoSelecionado;
+  if (!genero) { alert('Por favor, selecione se você é Ela ou Ele.'); return; }
+  if (!conjuge) { alert('Por favor, informe o nome do cônjuge.'); return; }
+  tabelaConfig = {genero: genero, conjuge: conjuge, casal: casal};
+  lsSet('tabela_config', tabelaConfig);
+  renderTabela();
+}
+
+function showConfig() {
+  if (tabelaConfig) {
+    document.getElementById('inp-conjuge').value = tabelaConfig.conjuge || '';
+    document.getElementById('inp-casal').value = tabelaConfig.casal || '';
+    setGenero(tabelaConfig.genero);
+  }
+  document.getElementById('tabela-config').style.display = 'block';
+  document.getElementById('tabela-main').style.display = 'none';
+}
+
+function novaReuniao() {
+  if (tabelaReunioes.length >= 10) return;
+  var n = tabelaReunioes.length + 1;
+  document.getElementById('modal-reuniao-titulo').textContent = 'Reunião ' + n;
+  _reuniaoNotas = {};
+  // Pre-fill with last cycle notas for eu
+  var lastCycle = cycles.length ? cycles[cycles.length-1] : null;
+  var conjuge = tabelaConfig.conjuge || 'Cônjuge';
+  var eu = tabelaConfig.genero;
+  var body = '<div style="margin-bottom:12px;">';
+  body += '<label style="font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;">Data da reunião:</label>';
+  body += '<input type="date" id="inp-reuniao-data" value="' + todayStr() + '" style="width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;" />';
+  body += '</div>';
+  var grupos = [{label:'Pontos Concretos de Esforço', grupo:'PCE'}, {label:'Vida em Equipe', grupo:'VE'}];
+  grupos.forEach(function(g) {
+    body += '<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;">' + g.label + '</div>';
+    TABELA_ITEMS.filter(function(it) { return it.grupo===g.grupo; }).forEach(function(item) {
+      // get nota from last cycle if available
+      var notaEu = '-';
+      if (lastCycle && lastCycle.rows) {
+        var row = lastCycle.rows.filter(function(r) { return r.label === item.label; })[0];
+        if (row) notaEu = row.nota === 'NAO' ? 'N' : row.nota;
+      }
+      _reuniaoNotas[item.id] = {eu: notaEu, conjuge: '-'};
+      body += '<div style="background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;">';
+      body += '<div style="font-size:13px;font-weight:700;margin-bottom:8px;">' + item.label + '</div>';
+      body += '<div style="display:flex;gap:12px;">';
+      // Eu
+      body += '<div style="flex:1;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">' + eu + '</div>';
+      body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-eu-' + item.id + '">';
+      NOTAS_OPTIONS.forEach(function(opt) {
+        var sel = notaEu === opt ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
+        body += '<button onclick="setNotaTabela('' + item.id + '','eu','' + opt + '')" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+      });
+      body += '</div></div>';
+      // Conjuge
+      body += '<div style="flex:1;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">' + conjuge + '</div>';
+      body += '<div style="display:flex;gap:3px;flex-wrap:wrap;" id="notas-cj-' + item.id + '">';
+      NOTAS_OPTIONS.forEach(function(opt) {
+        var sel = opt === '-' ? 'background:var(--text);color:#fff;' : 'background:var(--surface);color:var(--text);';
+        body += '<button onclick="setNotaTabela('' + item.id + '','conjuge','' + opt + '')" style="padding:4px 7px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--border2);cursor:pointer;' + sel + '">' + opt + '</button>';
+      });
+      body += '</div></div>';
+      body += '</div></div>';
+    });
+  });
+  document.getElementById('modal-reuniao-body').innerHTML = body;
+  document.getElementById('modal-reuniao').style.display = 'flex';
+}
+
+function setNotaTabela(itemId, quem, nota) {
+  if (!_reuniaoNotas[itemId]) _reuniaoNotas[itemId] = {eu:'-', conjuge:'-'};
+  _reuniaoNotas[itemId][quem] = nota;
+  var containerId = quem === 'eu' ? 'notas-eu-' + itemId : 'notas-cj-' + itemId;
+  var cont = document.getElementById(containerId);
+  if (!cont) return;
+  cont.querySelectorAll('button').forEach(function(btn) {
+    var isSelected = btn.textContent === nota;
+    btn.style.background = isSelected ? 'var(--text)' : 'var(--surface)';
+    btn.style.color = isSelected ? '#fff' : 'var(--text)';
+  });
+}
+
+function confirmarReuniao() {
+  var data = document.getElementById('inp-reuniao-data').value;
+  tabelaReunioes.push({data: data, notas: JSON.parse(JSON.stringify(_reuniaoNotas))});
+  lsSet('tabela_reunioes', tabelaReunioes);
+  closeModal('modal-reuniao');
+  renderTabela();
+}
+
+function exportTabelaPNG() {
+  var el = document.getElementById('tabela-visual');
+  if (!el) { alert('Nenhuma tabela para exportar.'); return; }
+  html2canvas(el, {backgroundColor:'#ffffff', scale:2}).then(function(canvas) {
+    var a = document.createElement('a');
+    a.download = (tabelaConfig && tabelaConfig.casal ? tabelaConfig.casal.replace(/\s+/g,'-') + '-' : '') + 'ENS-Tabela-PCEs.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+}
+
+function exportTabelaExcel() {
+  if (!tabelaReunioes.length) { alert('Nenhuma reunião registrada.'); return; }
+  var eu = tabelaConfig.genero;
+  var conjuge = tabelaConfig.conjuge || 'Cônjuge';
+  var header = ['PCEs'];
+  tabelaReunioes.forEach(function(r, i) { header.push('R'+(i+1)+' '+eu); header.push('R'+(i+1)+' '+conjuge); });
+  var rows = [header];
+  var grupos = [{label:'--- Pontos Concretos de Esforço ---', items: TABELA_ITEMS.filter(function(it){return it.grupo==='PCE';})},
+                {label:'--- Vida em Equipe ---', items: TABELA_ITEMS.filter(function(it){return it.grupo==='VE';})}];
+  grupos.forEach(function(g) {
+    rows.push([g.label]);
+    g.items.forEach(function(item) {
+      var row = [item.label];
+      tabelaReunioes.forEach(function(r) {
+        row.push(r.notas && r.notas[item.id] ? r.notas[item.id].eu : '-');
+        row.push(r.notas && r.notas[item.id] ? r.notas[item.id].conjuge : '-');
+      });
+      rows.push(row);
+    });
+  });
+  // Dates row
+  var dateRow = ['Data da Reunião'];
+  tabelaReunioes.forEach(function(r) { dateRow.push(fmtDate(r.data)); dateRow.push(''); });
+  rows.splice(1, 0, dateRow);
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:28}];
+  for (var i=0;i<tabelaReunioes.length*2;i++) ws['!cols'].push({wch:10});
+  XLSX.utils.book_append_sheet(wb, ws, 'Tabela PCEs');
+  XLSX.writeFile(wb, (tabelaConfig&&tabelaConfig.casal?tabelaConfig.casal.replace(/\s+/g,'-')+'-':'')+'ENS-Tabela-PCEs.xlsx');
 }
 
 // ---- Init ----
