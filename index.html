@@ -355,9 +355,9 @@ var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
 var TEMA_TITULO_OBJ = 'Capítulo 3: Incompletude e Gratuidade';
-var TEMA_TEXTO_OBJ = 'Objetivo: Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
-var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 3';
-var TEMA_MES = 'Maio / 2026';
+var TEMA_TEXTO_OBJ = 'Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
+var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 2';
+var TEMA_MES = 'Abril / 2026';
 var TEMA_PERGUNTAS = [
   'Que descobertas fizemos ao ler os textos do Padre Caffarel? Falemos tanto sobre o nosso amor conjugal quanto sobre nossa relação pessoal e de casa com Deus.',
   'Quais frutos do "dever de sentar-se" deste mês poderíamos compartilhar com a equipe?',
@@ -809,13 +809,27 @@ function buildReuniaoModal(eu, conjuge, dataVal){
           btn.style.cssText='padding:3px 6px;font-size:10px;font-weight:700;border-radius:4px;border:0.5px solid var(--border2);cursor:pointer;';
           btn.style.background=notaAtual===opt?'var(--text)':'var(--surface)';
           btn.style.color=notaAtual===opt?'#fff':'var(--text)';
-          btn.onclick=(function(id,q,o){return function(){setNotaTabela(id,q,o);};})(item.id,quem==='Eu'?'eu':'conjuge',opt);
+          btn.onclick=(function(id,k,o){return function(){setNotaTabela(id,k,o);};})(item.id,quemKey,opt);
           btns.appendChild(btn);
         });
         col.appendChild(btns);return col;
       }
-      row.appendChild(makeCol(eu,notaEu,'notas-eu-'+item.id));
-      row.appendChild(makeCol(conjuge,notaCj,'notas-cj-'+item.id));
+      function makeCol(displayName, quemKey, notaAtual, containerId){
+        var col=document.createElement('div');col.style.flex='1';
+        var lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:var(--text3);margin-bottom:3px;';lbl.textContent=displayName;col.appendChild(lbl);
+        var btns=document.createElement('div');btns.style.cssText='display:flex;gap:2px;flex-wrap:wrap;';btns.id=containerId;
+        NOTAS_OPTIONS.forEach(function(opt){
+          var btn=document.createElement('button');btn.textContent=opt;
+          btn.style.cssText='padding:3px 6px;font-size:10px;font-weight:700;border-radius:4px;border:0.5px solid var(--border2);cursor:pointer;';
+          btn.style.background=notaAtual===opt?'var(--text)':'var(--surface)';
+          btn.style.color=notaAtual===opt?'#fff':'var(--text)';
+          btn.onclick=(function(id,k,o){return function(){setNotaTabela(id,k,o);};})(item.id,quemKey,opt);
+          btns.appendChild(btn);
+        });
+        col.appendChild(btns);return col;
+      }
+      row.appendChild(makeCol(eu,'eu',notaEu,'notas-eu-'+item.id));
+      row.appendChild(makeCol(conjuge,'conjuge',notaCj,'notas-cj-'+item.id));
       block.appendChild(row);container.appendChild(block);
     });
   });
@@ -836,17 +850,16 @@ function setNotaTabela(itemId,quem,nota){
 function confirmarReuniao(){
   var data=document.getElementById('inp-reuniao-data').value;
   var existing=window._editandoReuniaoIdx;
-  if(existing!==null&&existing!==undefined){
-    // Editing existing
-    cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
-    cycles[existing].reuniaoData=data;
-    // Update in tabelaReunioes too if exists
-    if(tabelaReunioes[existing]){
-      tabelaReunioes[existing].data=data;
-      tabelaReunioes[existing].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
-      lsSet('tabela_reunioes',tabelaReunioes);
+  if(existing!==null&&existing!==undefined&&existing>=0){
+    // Salva na tabelaReunioes
+    tabelaReunioes[existing].data=data;
+    tabelaReunioes[existing].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
+    lsSet('tabela_reunioes',tabelaReunioes);
+    // Salva nos cycles tambem
+    if(cycles[existing]){
+      cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
+      lsSet('cycles',cycles);
     }
-    lsSet('cycles',cycles);
     window._editandoReuniaoIdx=null;
   } else {
     tabelaReunioes.push({data:data,notas:JSON.parse(JSON.stringify(_reuniaoNotas))});
@@ -890,10 +903,13 @@ function abrirEditarReuniao(){
 function editarReuniaoIdx(idx){
   var r=tabelaReunioes[idx];
   window._editandoReuniaoIdx=idx;
+  // Usar notas da tabelaReunioes (fonte correta para edicao)
   _reuniaoNotas=JSON.parse(JSON.stringify(r.notas||{}));
-  TABELA_ITEMS.forEach(function(item){if(!_reuniaoNotas[item.id])_reuniaoNotas[item.id]={eu:'-',conjuge:'-'};});
+  TABELA_ITEMS.forEach(function(item){
+    if(!_reuniaoNotas[item.id])_reuniaoNotas[item.id]={eu:'-',conjuge:'-'};
+  });
   document.getElementById('modal-reuniao-titulo').textContent='Editar Reuniao '+(idx+1);
-  document.getElementById('modal-reuniao-sub').textContent='Edite as notas desta reuniao.';
+  document.getElementById('modal-reuniao-sub').textContent='Edite as notas desta reuniao. Suas notas estao na coluna '+tabelaConfig.genero+'.';
   buildReuniaoModal(tabelaConfig.genero,tabelaConfig.conjuge||'Conjuge',r.data);
   document.getElementById('modal-reuniao').style.display='flex';
 }
