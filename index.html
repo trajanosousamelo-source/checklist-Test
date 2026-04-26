@@ -747,8 +747,11 @@ function buildFolhaHTML(forExport){
       for(var k=0;k<10;k++){
         var rk=allR[k];var isCurK=rk&&rk.current;
         var bgK=isCurK?'background:rgba(26,79,138,0.05);':'';
-        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var notaEu=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var notaCj=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        // Ela sempre na primeira coluna, Ele na segunda
+        var ne=eu==='Ela'?notaEu:notaCj;
+        var nc=eu==='Ela'?notaCj:notaEu;
         var bgE=ne&&ne!=='-'?notaBg(ne):'transparent';
         var bgC=nc&&nc!=='-'?notaBg(nc):'transparent';
         var colE=(ne&&ne!=='-')?'#fff':'var(--text3)';
@@ -960,8 +963,11 @@ function buildFolhaPDFTable(){
       s+='<tr><td style="padding:3px 5px;border-bottom:1px solid #f0f0f0;">'+item.label+'</td>';
       for(var k=0;k<10;k++){
         var rk=allR[k];
-        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var notaEu2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var notaCj2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var euGen=tabelaConfig?tabelaConfig.genero:'Ela';
+        var ne=euGen==='Ela'?notaEu2:notaCj2;
+        var nc=euGen==='Ela'?notaCj2:notaEu2;
         var bgE=ne?notaBg(ne):'transparent';var bgC=nc?notaBg(nc):'transparent';
         s+='<td style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #f0f0f0;">'+(ne?'<span style="background:'+bgE+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+ne+'</span>':'')+'</td>';
         s+='<td style="text-align:center;border-bottom:1px solid #f0f0f0;">'+(nc?'<span style="background:'+bgC+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+nc+'</span>':'')+'</td>';
