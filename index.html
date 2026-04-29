@@ -156,7 +156,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.0.8</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.0.9</span>
   </div>
 </div>
 
@@ -901,10 +901,8 @@ function confirmarReuniao(){
       temaRespostas:getTemaRespostas()
     });
     lsSet('cycles',cycles);
-    var mesesIdx2={'Janeiro':1,'Fevereiro':2,'Março':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
-    var mNum=mesesIdx2[mesesNomes[mesIdx-1]]||mesIdx;
-    var cycleStartDate=anoVal+'-'+(mNum<10?'0':'')+mNum+'-01';
-    cycleStart=cycleStartDate;lsSet('cycleStart',cycleStart);
+    // Usar hoje como início do novo ciclo (garante compatibilidade com registros diários)
+    cycleStart=todayStr();lsSet('cycleStart',cycleStart);
     records={};lsSet('records',records);
     checked={};lsSet('day_'+todayStr(),checked);
     renderList(PCE,'list-pce');renderList(VE,'list-ve');
