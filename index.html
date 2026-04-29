@@ -503,7 +503,10 @@ function closePreview(){
   var map={pces:0,tema:1,partilha:2,oracoes:3};
   if(map[_previewFrom]!==undefined)tabs[map[_previewFrom]].classList.add('active');
 }
-function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModal(id){
+  document.getElementById(id).style.display='none';
+  if(id==='modal-reuniao')window._editandoReuniaoIdx=null;
+}
 
 // ---- PCEs ----
 function getItemStats(item){
@@ -775,6 +778,7 @@ function buildFolhaHTML(forExport){
 // ---- Nova Reuniao ----
 function novaReuniao(){
   if(tabelaReunioes.length>=10)return;
+  window._editandoReuniaoIdx=null;
   var n=tabelaReunioes.length+1;
   document.getElementById('modal-reuniao-titulo').textContent='Encerrar Reuniao '+n;
   document.getElementById('modal-reuniao-sub').textContent='Suas notas foram calculadas automaticamente. Voce pode altera-las e informar as notas do conjuge.';
@@ -860,10 +864,14 @@ function setNotaTabela(itemId,quem,nota){
 function confirmarReuniao(){
   var selM=document.getElementById('inp-reuniao-mes');
   var selA=document.getElementById('inp-reuniao-ano');
+  if(!selM||!selA){alert('Erro: seletor de mes nao encontrado. Tente novamente.');return;}
   var mesesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var data=mesesNomes[parseInt(selM.value)-1]+' / '+selA.value;
+  var mesIdx=parseInt(selM.value);
+  if(isNaN(mesIdx)||mesIdx<1||mesIdx>12)mesIdx=new Date().getMonth()+1;
+  var anoVal=parseInt(selA.value)||new Date().getFullYear();
+  var data=mesesNomes[mesIdx-1]+' / '+anoVal;
   var existing=window._editandoReuniaoIdx;
-  if(existing!==null&&existing!==undefined){
+  if(existing!==null&&existing!==undefined&&existing>=0&&existing<tabelaReunioes.length){
     // Editing existing
     cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
     cycles[existing].reuniaoData=data;
