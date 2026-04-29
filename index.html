@@ -156,7 +156,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.0.5</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.0.6</span>
   </div>
 </div>
 
@@ -503,10 +503,7 @@ function closePreview(){
   var map={pces:0,tema:1,partilha:2,oracoes:3};
   if(map[_previewFrom]!==undefined)tabs[map[_previewFrom]].classList.add('active');
 }
-function closeModal(id){
-  document.getElementById(id).style.display='none';
-  if(id==='modal-reuniao')window._editandoReuniaoIdx=null;
-}
+function closeModal(id){document.getElementById(id).style.display='none';}
 
 // ---- PCEs ----
 function getItemStats(item){
@@ -864,29 +861,30 @@ function setNotaTabela(itemId,quem,nota){
 function confirmarReuniao(){
   var selM=document.getElementById('inp-reuniao-mes');
   var selA=document.getElementById('inp-reuniao-ano');
-  if(!selM||!selA){alert('Erro: seletor de mes nao encontrado. Tente novamente.');return;}
+  if(!selM||!selA){alert('Erro: seletor de mes nao encontrado.');return;}
   var mesesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var mesIdx=parseInt(selM.value);
   if(isNaN(mesIdx)||mesIdx<1||mesIdx>12)mesIdx=new Date().getMonth()+1;
   var anoVal=parseInt(selA.value)||new Date().getFullYear();
   var data=mesesNomes[mesIdx-1]+' / '+anoVal;
-  var existing=window._editandoReuniaoIdx;
-  if(existing!==null&&existing!==undefined&&existing>=0&&existing<tabelaReunioes.length){
-    // Editing existing
-    cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
-    cycles[existing].reuniaoData=data;
-    // Update in tabelaReunioes too if exists
-    if(tabelaReunioes[existing]){
-      tabelaReunioes[existing].data=data;
-      tabelaReunioes[existing].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
-      lsSet('tabela_reunioes',tabelaReunioes);
+
+  // Capturar e limpar o índice ANTES de qualquer operação
+  var editIdx=window._editandoReuniaoIdx;
+  window._editandoReuniaoIdx=null;
+
+  if(editIdx!==null&&editIdx!==undefined&&editIdx>=0&&editIdx<tabelaReunioes.length){
+    // EDITANDO reunião existente
+    tabelaReunioes[editIdx].data=data;
+    tabelaReunioes[editIdx].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
+    lsSet('tabela_reunioes',tabelaReunioes);
+    if(cycles[editIdx]){
+      cycles[editIdx].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
+      lsSet('cycles',cycles);
     }
-    lsSet('cycles',cycles);
-    window._editandoReuniaoIdx=null;
   } else {
+    // NOVA reunião
     tabelaReunioes.push({data:data,notas:JSON.parse(JSON.stringify(_reuniaoNotas))});
     lsSet('tabela_reunioes',tabelaReunioes);
-    // Also save as cycle
     cycles.push({
       start:cycleStart,end:data,
       records:JSON.parse(JSON.stringify(records)),
@@ -896,21 +894,15 @@ function confirmarReuniao(){
       temaRespostas:getTemaRespostas()
     });
     lsSet('cycles',cycles);
-    // Converter "Maio / 2026" para "2026-05-01" para compatibilidade com records
-    var mesesIdx={'Janeiro':1,'Fevereiro':2,'Março':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
-    var cycleStartDate=data;
-    if(data.indexOf('/')>-1){
-      var pts=data.split('/');
-      var mNome=pts[0].trim();var mAno=pts[1].trim();
-      var mNum=mesesIdx[mNome]||1;
-      cycleStartDate=mAno+'-'+(mNum<10?'0':'')+mNum+'-01';
-    }
+    var mesesIdx2={'Janeiro':1,'Fevereiro':2,'Março':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
+    var mNum=mesesIdx2[mesesNomes[mesIdx-1]]||mesIdx;
+    var cycleStartDate=anoVal+'-'+(mNum<10?'0':'')+mNum+'-01';
     cycleStart=cycleStartDate;lsSet('cycleStart',cycleStart);
     records={};lsSet('records',records);
     checked={};lsSet('day_'+todayStr(),checked);
     renderList(PCE,'list-pce');renderList(VE,'list-ve');
   }
-  closeModal('modal-reuniao');
+  document.getElementById('modal-reuniao').style.display='none';
   renderPartilha();
 }
 
