@@ -355,9 +355,9 @@ var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
 var TEMA_TITULO_OBJ = 'Capítulo 3: Incompletude e Gratuidade';
-var TEMA_TEXTO_OBJ = 'Objetivo: Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
+var TEMA_TEXTO_OBJ = 'Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
 var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 2';
-var TEMA_MES = 'Maio / 2026';
+var TEMA_MES = 'Abril / 2026';
 var TEMA_PERGUNTAS = [
   'Que descobertas fizemos ao ler os textos do Padre Caffarel? Falemos tanto sobre o nosso amor conjugal quanto sobre nossa relação pessoal e de casa com Deus.',
   'Quais frutos do "dever de sentar-se" deste mês poderíamos compartilhar com a equipe?',
@@ -425,7 +425,7 @@ var NOTAS_OPTIONS = ['I','B','R','F','N','S','-'];
 function lsGet(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}}
 function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function todayStr(){var d=new Date();var y=d.getFullYear();var m=String(d.getMonth()+1).padStart(2,'0');var day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day;}
-function fmtDate(d){if(!d)return'—';return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function fmtDate(d){if(!d)return'—';if(d.indexOf('/')>-1)return d.trim();return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
 function weekKey(ds){var d=new Date(ds+'T12:00:00');var j=new Date(d.getFullYear(),0,1);return d.getFullYear()+'-W'+Math.ceil(((d-j)/86400000+j.getDay()+1)/7);}
 function isGraded(item){return !item.tipo||item.tipo==='graded';}
 
@@ -747,11 +747,8 @@ function buildFolhaHTML(forExport){
       for(var k=0;k<10;k++){
         var rk=allR[k];var isCurK=rk&&rk.current;
         var bgK=isCurK?'background:rgba(26,79,138,0.05);':'';
-        var notaEu=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var notaCj=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
-        // Ela sempre na primeira coluna, Ele na segunda
-        var ne=eu==='Ela'?notaEu:notaCj;
-        var nc=eu==='Ela'?notaCj:notaEu;
+        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
         var bgE=ne&&ne!=='-'?notaBg(ne):'transparent';
         var bgC=nc&&nc!=='-'?notaBg(nc):'transparent';
         var colE=(ne&&ne!=='-')?'#fff':'var(--text3)';
@@ -784,10 +781,30 @@ function novaReuniao(){
 function buildReuniaoModal(eu, conjuge, dataVal){
   var container=document.getElementById('modal-reuniao-body');container.innerHTML='';
   var dateDiv=document.createElement('div');dateDiv.style.marginBottom='12px';
-  var dateLbl=document.createElement('label');dateLbl.style.cssText='font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;';dateLbl.textContent='Data da reuniao:';
-  var dateInp=document.createElement('input');dateInp.type='date';dateInp.id='inp-reuniao-data';dateInp.value=dataVal;
-  dateInp.style.cssText='width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;';
-  dateDiv.appendChild(dateLbl);dateDiv.appendChild(dateInp);container.appendChild(dateDiv);
+  var dateLbl=document.createElement('label');dateLbl.style.cssText='font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;';dateLbl.textContent='Mes da reuniao:';
+  var dateRow=document.createElement('div');dateRow.style.cssText='display:flex;gap:8px;';
+  var meses=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var selMes=document.createElement('select');selMes.id='inp-reuniao-mes';
+  selMes.style.cssText='flex:1;padding:8px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;';
+  meses.forEach(function(m,i){var op=document.createElement('option');op.value=i+1;op.textContent=m;selMes.appendChild(op);});
+  var anoAtual=new Date().getFullYear();
+  var selAno=document.createElement('select');selAno.id='inp-reuniao-ano';
+  selAno.style.cssText='width:100px;padding:8px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;';
+  for(var y=anoAtual-1;y<=anoAtual+2;y++){var op=document.createElement('option');op.value=y;op.textContent=y;selAno.appendChild(op);}
+  var mesVal=new Date().getMonth()+1;var anoVal=anoAtual;
+  if(dataVal&&dataVal.indexOf('/')>-1){
+    var partes=dataVal.split('/');
+    var nomeMes=partes[0].trim();
+    anoVal=parseInt(partes[1])||anoAtual;
+    var idxMes=meses.findIndex(function(m){return m.toLowerCase()===nomeMes.toLowerCase();});
+    if(idxMes>=0)mesVal=idxMes+1;
+  } else if(dataVal&&dataVal.length===10){
+    mesVal=parseInt(dataVal.slice(5,7))||mesVal;
+    anoVal=parseInt(dataVal.slice(0,4))||anoVal;
+  }
+  selMes.value=mesVal;selAno.value=anoVal;
+  dateRow.appendChild(selMes);dateRow.appendChild(selAno);
+  dateDiv.appendChild(dateLbl);dateDiv.appendChild(dateRow);container.appendChild(dateDiv);
   var grupos=[{label:'Pontos Concretos de Esforco',grupo:'PCE'},{label:'Vida em Equipe',grupo:'VE'}];
   grupos.forEach(function(g){
     var grpLbl=document.createElement('div');
@@ -809,27 +826,13 @@ function buildReuniaoModal(eu, conjuge, dataVal){
           btn.style.cssText='padding:3px 6px;font-size:10px;font-weight:700;border-radius:4px;border:0.5px solid var(--border2);cursor:pointer;';
           btn.style.background=notaAtual===opt?'var(--text)':'var(--surface)';
           btn.style.color=notaAtual===opt?'#fff':'var(--text)';
-          btn.onclick=(function(id,k,o){return function(){setNotaTabela(id,k,o);};})(item.id,quemKey,opt);
+          btn.onclick=(function(id,q,o){return function(){setNotaTabela(id,q,o);};})(item.id,quem==='Eu'?'eu':'conjuge',opt);
           btns.appendChild(btn);
         });
         col.appendChild(btns);return col;
       }
-      function makeCol(displayName, quemKey, notaAtual, containerId){
-        var col=document.createElement('div');col.style.flex='1';
-        var lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:var(--text3);margin-bottom:3px;';lbl.textContent=displayName;col.appendChild(lbl);
-        var btns=document.createElement('div');btns.style.cssText='display:flex;gap:2px;flex-wrap:wrap;';btns.id=containerId;
-        NOTAS_OPTIONS.forEach(function(opt){
-          var btn=document.createElement('button');btn.textContent=opt;
-          btn.style.cssText='padding:3px 6px;font-size:10px;font-weight:700;border-radius:4px;border:0.5px solid var(--border2);cursor:pointer;';
-          btn.style.background=notaAtual===opt?'var(--text)':'var(--surface)';
-          btn.style.color=notaAtual===opt?'#fff':'var(--text)';
-          btn.onclick=(function(id,k,o){return function(){setNotaTabela(id,k,o);};})(item.id,quemKey,opt);
-          btns.appendChild(btn);
-        });
-        col.appendChild(btns);return col;
-      }
-      row.appendChild(makeCol(eu,'eu',notaEu,'notas-eu-'+item.id));
-      row.appendChild(makeCol(conjuge,'conjuge',notaCj,'notas-cj-'+item.id));
+      row.appendChild(makeCol(eu,notaEu,'notas-eu-'+item.id));
+      row.appendChild(makeCol(conjuge,notaCj,'notas-cj-'+item.id));
       block.appendChild(row);container.appendChild(block);
     });
   });
@@ -848,18 +851,22 @@ function setNotaTabela(itemId,quem,nota){
 }
 
 function confirmarReuniao(){
-  var data=document.getElementById('inp-reuniao-data').value;
+  var selM=document.getElementById('inp-reuniao-mes');
+  var selA=document.getElementById('inp-reuniao-ano');
+  var mesesNomes=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var data=mesesNomes[parseInt(selM.value)-1]+' / '+selA.value;
   var existing=window._editandoReuniaoIdx;
-  if(existing!==null&&existing!==undefined&&existing>=0){
-    // Salva na tabelaReunioes
-    tabelaReunioes[existing].data=data;
-    tabelaReunioes[existing].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
-    lsSet('tabela_reunioes',tabelaReunioes);
-    // Salva nos cycles tambem
-    if(cycles[existing]){
-      cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
-      lsSet('cycles',cycles);
+  if(existing!==null&&existing!==undefined){
+    // Editing existing
+    cycles[existing].tabelaNotas=JSON.parse(JSON.stringify(_reuniaoNotas));
+    cycles[existing].reuniaoData=data;
+    // Update in tabelaReunioes too if exists
+    if(tabelaReunioes[existing]){
+      tabelaReunioes[existing].data=data;
+      tabelaReunioes[existing].notas=JSON.parse(JSON.stringify(_reuniaoNotas));
+      lsSet('tabela_reunioes',tabelaReunioes);
     }
+    lsSet('cycles',cycles);
     window._editandoReuniaoIdx=null;
   } else {
     tabelaReunioes.push({data:data,notas:JSON.parse(JSON.stringify(_reuniaoNotas))});
@@ -903,13 +910,10 @@ function abrirEditarReuniao(){
 function editarReuniaoIdx(idx){
   var r=tabelaReunioes[idx];
   window._editandoReuniaoIdx=idx;
-  // Usar notas da tabelaReunioes (fonte correta para edicao)
   _reuniaoNotas=JSON.parse(JSON.stringify(r.notas||{}));
-  TABELA_ITEMS.forEach(function(item){
-    if(!_reuniaoNotas[item.id])_reuniaoNotas[item.id]={eu:'-',conjuge:'-'};
-  });
+  TABELA_ITEMS.forEach(function(item){if(!_reuniaoNotas[item.id])_reuniaoNotas[item.id]={eu:'-',conjuge:'-'};});
   document.getElementById('modal-reuniao-titulo').textContent='Editar Reuniao '+(idx+1);
-  document.getElementById('modal-reuniao-sub').textContent='Edite as notas desta reuniao. Suas notas estao na coluna '+tabelaConfig.genero+'.';
+  document.getElementById('modal-reuniao-sub').textContent='Edite as notas desta reuniao.';
   buildReuniaoModal(tabelaConfig.genero,tabelaConfig.conjuge||'Conjuge',r.data);
   document.getElementById('modal-reuniao').style.display='flex';
 }
@@ -979,11 +983,8 @@ function buildFolhaPDFTable(){
       s+='<tr><td style="padding:3px 5px;border-bottom:1px solid #f0f0f0;">'+item.label+'</td>';
       for(var k=0;k<10;k++){
         var rk=allR[k];
-        var notaEu2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var notaCj2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
-        var euGen=tabelaConfig?tabelaConfig.genero:'Ela';
-        var ne=euGen==='Ela'?notaEu2:notaCj2;
-        var nc=euGen==='Ela'?notaCj2:notaEu2;
+        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
         var bgE=ne?notaBg(ne):'transparent';var bgC=nc?notaBg(nc):'transparent';
         s+='<td style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #f0f0f0;">'+(ne?'<span style="background:'+bgE+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+ne+'</span>':'')+'</td>';
         s+='<td style="text-align:center;border-bottom:1px solid #f0f0f0;">'+(nc?'<span style="background:'+bgC+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+nc+'</span>':'')+'</td>';
