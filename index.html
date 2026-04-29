@@ -355,9 +355,9 @@ var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
 var TEMA_TITULO_OBJ = 'Capítulo 3: Incompletude e Gratuidade';
-var TEMA_TEXTO_OBJ = 'Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
+var TEMA_TEXTO_OBJ = 'Objetivo: Levar o casal a fazer a experiência da busca da complementariedade pessoal que começa na gratuidade da vida a dois e se abre para a plena complementariedade em Deus e na experiência profunda de sua graça.';
 var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 2';
-var TEMA_MES = 'Abril / 2026';
+var TEMA_MES = 'Maio / 2026';
 var TEMA_PERGUNTAS = [
   'Que descobertas fizemos ao ler os textos do Padre Caffarel? Falemos tanto sobre o nosso amor conjugal quanto sobre nossa relação pessoal e de casa com Deus.',
   'Quais frutos do "dever de sentar-se" deste mês poderíamos compartilhar com a equipe?',
@@ -881,7 +881,16 @@ function confirmarReuniao(){
       temaRespostas:getTemaRespostas()
     });
     lsSet('cycles',cycles);
-    cycleStart=data;lsSet('cycleStart',cycleStart);
+    // Converter "Maio / 2026" para "2026-05-01" para compatibilidade com records
+    var mesesIdx={'Janeiro':1,'Fevereiro':2,'Marco':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
+    var cycleStartDate=data;
+    if(data.indexOf('/')>-1){
+      var pts=data.split('/');
+      var mNome=pts[0].trim();var mAno=pts[1].trim();
+      var mNum=mesesIdx[mNome]||1;
+      cycleStartDate=mAno+'-'+(mNum<10?'0':'')+mNum+'-01';
+    }
+    cycleStart=cycleStartDate;lsSet('cycleStart',cycleStart);
     records={};lsSet('records',records);
     checked={};lsSet('day_'+todayStr(),checked);
     renderList(PCE,'list-pce');renderList(VE,'list-ve');
