@@ -83,7 +83,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 .oracao-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;}
 .oracao-titulo{font-size:14px;font-weight:700;}
 .oracao-chevron{font-size:12px;color:var(--text3);transition:transform 0.2s;}
-.oracao-body{display:none;padding:0 14px 14px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;border-top:0.5px solid var(--border);}
+.oracao-body{display:none;padding:0 14px 14px;font-size:16px;color:var(--text2);line-height:1.8;white-space:pre-wrap;border-top:0.5px solid var(--border);}
 .oracao-body.open{display:block;}
 
 /* Partilha */
@@ -508,12 +508,12 @@ function closeModal(id){document.getElementById(id).style.display='none';}
 // ---- PCEs ----
 function getItemStats(item){
   var days=Object.keys(records).filter(function(d){return d>=cycleStart;}).sort();
-  if(!days.length)return{pct:0,nota:'-'};
+  if(!days.length)return{pct:0,nota:'-',count:0,denom:0};
   var s=calcPct(item,days,records);
   var nota;
   if(isGraded(item))nota=gradeNota(s.pct);
   else nota=s.count>0?'S':'N';
-  return{pct:s.pct,nota:nota};
+  return{pct:s.pct,nota:nota,count:s.count,denom:s.denom};
 }
 
 function renderList(items,cid){
@@ -527,7 +527,7 @@ function renderList(items,cid){
     div.innerHTML='<div class="check-circle"><div class="checkmark"></div></div>'+
       '<span class="item-label">'+item.label+'</span>'+
       '<div class="item-stats">'+
-      (st.pct>0?'<span class="item-pct">'+st.pct+'%</span>':'')+
+      (st.pct>0?'<span class="item-pct">'+st.pct+'% ('+st.count+'/'+st.denom+')</span>':'')+
       (st.nota!=='-'?'<span class="'+notaClass+'">'+st.nota+'</span>':'')+
       '</div>';
     div.onclick=(function(id,el2){return function(){
@@ -668,20 +668,25 @@ function renderPartilha(){
 function renderReunioesPartilha(){
   var cont=document.getElementById('reunioes-partilha');
   if(!cont)return;
-  if(!cycles.length){cont.innerHTML='<div class="empty">Nenhuma reuniao encerrada ainda.</div>';return;}
+  // Usar tabelaReunioes como fonte principal (mais confiável)
+  var total=Math.max(tabelaReunioes.length, cycles.length);
+  if(!total){cont.innerHTML='<div class="empty">Nenhuma reuniao encerrada ainda.</div>';return;}
   cont.innerHTML='';
   var titulo=document.createElement('div');titulo.className='section-label';titulo.textContent='Reunioes encerradas';
   cont.appendChild(titulo);
-  cycles.slice().reverse().forEach(function(c,i){
-    var n=cycles.length-i;
-    var idx=cycles.length-1-i;
-    var days=Object.keys(c.records);
+  // Iterar por tabelaReunioes que sempre tem todas
+  tabelaReunioes.slice().reverse().forEach(function(r,i){
+    var idx=tabelaReunioes.length-1-i;
+    var n=idx+1;
+    var c=cycles[idx]||{};
+    var days=Object.keys(c.records||{});
     var respostasObj=c.temaRespostas||(c.tema&&c.tema.respostas)||{};
     var temResp=temRespostasPreenchidas(respostasObj);
+    var mesLabel=r.data||fmtDate(c.start)||'';
     var div=document.createElement('div');div.className='reuniao-item';
     div.innerHTML='<div class="reuniao-item-header">'+
       '<div><div class="reuniao-item-title">Reuniao '+n+'</div>'+
-      '<div class="reuniao-item-sub">'+fmtDate(c.start)+' a '+fmtDate(c.end)+' &middot; '+days.length+' dias</div></div>'+
+      '<div class="reuniao-item-sub">'+mesLabel+(days.length?' &middot; '+days.length+' dias':'')+'</div></div>'+
       '<div class="reuniao-item-btns">'+
       (!temResp?'<button class="ri-btn" onclick="editarRespostasReuniao('+idx+')">Editar tema</button>':'')+
       '<button class="ri-btn ri-btn-blue" onclick="gerarRelatorioReuniao('+idx+')">Relatorio</button>'+
@@ -747,8 +752,10 @@ function buildFolhaHTML(forExport){
       for(var k=0;k<10;k++){
         var rk=allR[k];var isCurK=rk&&rk.current;
         var bgK=isCurK?'background:rgba(26,79,138,0.05);':'';
-        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var _notaEu=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var _notaCj=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var ne=eu==='Ela'?_notaEu:_notaCj;
+        var nc=eu==='Ela'?_notaCj:_notaEu;
         var bgE=ne&&ne!=='-'?notaBg(ne):'transparent';
         var bgC=nc&&nc!=='-'?notaBg(nc):'transparent';
         var colE=(ne&&ne!=='-')?'#fff':'var(--text3)';
@@ -783,7 +790,7 @@ function buildReuniaoModal(eu, conjuge, dataVal){
   var dateDiv=document.createElement('div');dateDiv.style.marginBottom='12px';
   var dateLbl=document.createElement('label');dateLbl.style.cssText='font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px;';dateLbl.textContent='Mes da reuniao:';
   var dateRow=document.createElement('div');dateRow.style.cssText='display:flex;gap:8px;';
-  var meses=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var selMes=document.createElement('select');selMes.id='inp-reuniao-mes';
   selMes.style.cssText='flex:1;padding:8px 10px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;outline:none;';
   meses.forEach(function(m,i){var op=document.createElement('option');op.value=i+1;op.textContent=m;selMes.appendChild(op);});
@@ -796,7 +803,7 @@ function buildReuniaoModal(eu, conjuge, dataVal){
     var partes=dataVal.split('/');
     var nomeMes=partes[0].trim();
     anoVal=parseInt(partes[1])||anoAtual;
-    var idxMes=meses.findIndex(function(m){return m.toLowerCase()===nomeMes.toLowerCase();});
+    var idxMes=meses.findIndex(function(m){return m.toLowerCase().replace(/[^a-z]/g,'')===nomeMes.toLowerCase().replace(/[^a-z]/g,'');});
     if(idxMes>=0)mesVal=idxMes+1;
   } else if(dataVal&&dataVal.length===10){
     mesVal=parseInt(dataVal.slice(5,7))||mesVal;
@@ -817,22 +824,22 @@ function buildReuniaoModal(eu, conjuge, dataVal){
       block.style.cssText='background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:5px;';
       var title=document.createElement('div');title.style.cssText='font-size:12px;font-weight:700;margin-bottom:6px;';title.textContent=item.label;block.appendChild(title);
       var row=document.createElement('div');row.style.cssText='display:flex;gap:10px;';
-      function makeCol(quem, notaAtual, containerId){
+      function makeCol(displayName, quemKey, notaAtual, containerId){
         var col=document.createElement('div');col.style.flex='1';
-        var lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:var(--text3);margin-bottom:3px;';lbl.textContent=quem;col.appendChild(lbl);
+        var lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:var(--text3);margin-bottom:3px;';lbl.textContent=displayName;col.appendChild(lbl);
         var btns=document.createElement('div');btns.style.cssText='display:flex;gap:2px;flex-wrap:wrap;';btns.id=containerId;
         NOTAS_OPTIONS.forEach(function(opt){
           var btn=document.createElement('button');btn.textContent=opt;
           btn.style.cssText='padding:3px 6px;font-size:10px;font-weight:700;border-radius:4px;border:0.5px solid var(--border2);cursor:pointer;';
           btn.style.background=notaAtual===opt?'var(--text)':'var(--surface)';
           btn.style.color=notaAtual===opt?'#fff':'var(--text)';
-          btn.onclick=(function(id,q,o){return function(){setNotaTabela(id,q,o);};})(item.id,quem==='Eu'?'eu':'conjuge',opt);
+          btn.onclick=(function(id,k,o){return function(){setNotaTabela(id,k,o);};})(item.id,quemKey,opt);
           btns.appendChild(btn);
         });
         col.appendChild(btns);return col;
       }
-      row.appendChild(makeCol(eu,notaEu,'notas-eu-'+item.id));
-      row.appendChild(makeCol(conjuge,notaCj,'notas-cj-'+item.id));
+      row.appendChild(makeCol(eu,'eu',notaEu,'notas-eu-'+item.id));
+      row.appendChild(makeCol(conjuge,'conjuge',notaCj,'notas-cj-'+item.id));
       block.appendChild(row);container.appendChild(block);
     });
   });
@@ -853,7 +860,7 @@ function setNotaTabela(itemId,quem,nota){
 function confirmarReuniao(){
   var selM=document.getElementById('inp-reuniao-mes');
   var selA=document.getElementById('inp-reuniao-ano');
-  var mesesNomes=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mesesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var data=mesesNomes[parseInt(selM.value)-1]+' / '+selA.value;
   var existing=window._editandoReuniaoIdx;
   if(existing!==null&&existing!==undefined){
@@ -882,7 +889,7 @@ function confirmarReuniao(){
     });
     lsSet('cycles',cycles);
     // Converter "Maio / 2026" para "2026-05-01" para compatibilidade com records
-    var mesesIdx={'Janeiro':1,'Fevereiro':2,'Marco':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
+    var mesesIdx={'Janeiro':1,'Fevereiro':2,'Março':3,'Abril':4,'Maio':5,'Junho':6,'Julho':7,'Agosto':8,'Setembro':9,'Outubro':10,'Novembro':11,'Dezembro':12};
     var cycleStartDate=data;
     if(data.indexOf('/')>-1){
       var pts=data.split('/');
@@ -992,8 +999,11 @@ function buildFolhaPDFTable(){
       s+='<tr><td style="padding:3px 5px;border-bottom:1px solid #f0f0f0;">'+item.label+'</td>';
       for(var k=0;k<10;k++){
         var rk=allR[k];
-        var ne=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
-        var nc=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var _eu2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].eu:'';
+        var _cj2=rk&&rk.notas&&rk.notas[item.id]?rk.notas[item.id].conjuge:'';
+        var euGen=tabelaConfig?tabelaConfig.genero:'Ela';
+        var ne=euGen==='Ela'?_eu2:_cj2;
+        var nc=euGen==='Ela'?_cj2:_eu2;
         var bgE=ne?notaBg(ne):'transparent';var bgC=nc?notaBg(nc):'transparent';
         s+='<td style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #f0f0f0;">'+(ne?'<span style="background:'+bgE+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+ne+'</span>':'')+'</td>';
         s+='<td style="text-align:center;border-bottom:1px solid #f0f0f0;">'+(nc?'<span style="background:'+bgC+';color:#fff;padding:1px 3px;border-radius:2px;font-weight:700;font-size:9px;">'+nc+'</span>':'')+'</td>';
