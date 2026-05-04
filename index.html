@@ -156,7 +156,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.0.9</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.1.0</span>
   </div>
 </div>
 
@@ -513,14 +513,38 @@ function closePreview(){
 function closeModal(id){document.getElementById(id).style.display='none';}
 
 // ---- PCEs ----
+function getAllDaysInPeriod(start, end){
+  // Gera todos os dias do período, independente de salvamento
+  var days=[];
+  var cur=new Date(start+'T12:00:00');
+  var endD=new Date(end+'T12:00:00');
+  while(cur<=endD){
+    var y=cur.getFullYear();
+    var m=String(cur.getMonth()+1).padStart(2,'0');
+    var d=String(cur.getDate()).padStart(2,'0');
+    days.push(y+'-'+m+'-'+d);
+    cur.setDate(cur.getDate()+1);
+  }
+  return days;
+}
+
 function getItemStats(item){
-  var days=Object.keys(records).filter(function(d){return d>=cycleStart;}).sort();
-  if(!days.length)return{pct:0,nota:'-',count:0,denom:0};
-  var s=calcPct(item,days,records);
+  // Usar todos os dias do período, não só os salvos
+  var allDays=getAllDaysInPeriod(cycleStart, todayStr());
+  if(!allDays.length)return{pct:0,nota:'-',count:0,denom:0};
+  // Contar apenas os dias em que o item foi marcado
+  var count=allDays.filter(function(d){return records[d]&&records[d][item.id];}).length;
+  var denom;
+  if(item.freq==='diario') denom=allDays.length;
+  else if(item.freq==='semanal') denom=new Set(allDays.map(weekKey)).size;
+  else if(item.freq==='mensal') denom=new Set(allDays.map(function(d){return d.slice(0,7);})).size;
+  else denom=new Set(allDays.map(function(d){return d.slice(0,4);})).size;
+  denom=Math.max(1,denom);
+  var pct=Math.round((count/denom)*100);
   var nota;
-  if(isGraded(item))nota=gradeNota(s.pct);
-  else nota=s.count>0?'S':'N';
-  return{pct:s.pct,nota:nota,count:s.count,denom:s.denom};
+  if(isGraded(item))nota=gradeNota(pct);
+  else nota=count>0?'S':'N';
+  return{pct:pct,nota:nota,count:count,denom:denom};
 }
 
 function renderList(items,cid){
@@ -705,7 +729,8 @@ function renderReunioesPartilha(){
 
 // ---- Folha da Partilha ----
 function getNotasAtuais(){
-  var days=Object.keys(records).filter(function(d){return d>=cycleStart;}).sort();
+  // Usar todos os dias do período para cálculo correto
+  var days=getAllDaysInPeriod(cycleStart, todayStr());
   var notas={};
   TABELA_ITEMS.forEach(function(item){
     var appItem=PCE.find(function(p){return p.id===item.id;})||VE.find(function(v){return v.id===item.id;});
