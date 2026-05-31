@@ -70,6 +70,21 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 .tema-obj-label{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
 .tema-obj-titulo{font-size:16px;font-weight:700;color:var(--blue);margin-bottom:8px;}
 .tema-obj-texto{font-size:13px;color:var(--text2);line-height:1.6;}
+.tema-menu{display:flex;flex-direction:column;gap:10px;margin-top:0.5rem;}
+.tema-menu-btn{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;text-align:left;width:100%;font-family:inherit;}
+.tema-menu-btn:active{transform:scale(0.99);}
+.tema-menu-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.tema-menu-icon-blue{background:var(--blue-bg);}
+.tema-menu-icon-green{background:var(--green-bg);}
+.tema-menu-label{font-size:15px;font-weight:700;color:var(--text);}
+.tema-menu-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.tema-cap-list{display:flex;flex-direction:column;gap:8px;}
+.tema-cap-btn{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:left;width:100%;font-family:inherit;}
+.tema-cap-btn:active{background:var(--blue-bg);}
+.tema-cap-num{width:32px;height:32px;border-radius:8px;background:var(--blue-bg);color:var(--blue);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tema-cap-label{font-size:14px;font-weight:700;color:var(--text);}
+.tema-back-btn{display:flex;align-items:center;gap:6px;padding:8px 0;font-size:13px;font-weight:700;color:var(--text2);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:12px;}
+.tema-obj-proposito{font-size:13px;color:var(--blue);font-weight:700;margin-top:10px;line-height:1.5;padding-top:10px;border-top:0.5px solid var(--blue-border);}
 .tema-mes-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--blue);background:rgba(26,79,138,0.1);padding:3px 10px;border-radius:10px;margin-bottom:1rem;}
 .tema-q-block{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;}
 .tema-q-num{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
@@ -156,7 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.1.0</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.1.5</span>
   </div>
 </div>
 
@@ -186,15 +201,44 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
 
     <!-- TEMA -->
     <div id="page-tema" class="page" style="display:none;">
-      <div class="tema-obj-block">
-        <div class="tema-obj-label">Tema do mês</div>
-        <div class="tema-obj-titulo" id="tema-obj-titulo"></div>
-        <div class="tema-obj-texto" id="tema-obj-texto"></div>
+      <!-- Menu principal -->
+      <div id="tema-view-menu">
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">Tema do Mês</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1.25rem;" id="tema-menu-mes"></div>
+        <div class="tema-menu">
+          <button class="tema-menu-btn" onclick="showTemaPerguntas()">
+            <div class="tema-menu-icon tema-menu-icon-blue">❓</div>
+            <div><div class="tema-menu-label">Perguntas do Tema do Mês</div>
+            <div class="tema-menu-sub">Responda e salve suas reflexões</div></div>
+          </button>
+          <button class="tema-menu-btn" onclick="showTemaLeitura()">
+            <div class="tema-menu-icon tema-menu-icon-green">📖</div>
+            <div><div class="tema-menu-label">Leitura do Tema do Mês</div>
+            <div class="tema-menu-sub">Acesse os capítulos do livro</div></div>
+          </button>
+        </div>
       </div>
-      <div class="tema-mes-badge" id="tema-mes-badge"></div>
-      <div id="tema-perguntas"></div>
-      <button class="tema-save-btn" onclick="saveTema()">Salvar respostas</button>
-      <div class="saved-msg" id="tema-saved-msg"></div>
+      <!-- Perguntas -->
+      <div id="tema-view-perguntas" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div class="tema-obj-block">
+          <div class="tema-obj-label">Tema do mês</div>
+          <div class="tema-obj-titulo" id="tema-obj-titulo"></div>
+          <div class="tema-obj-texto" id="tema-obj-texto"></div>
+          <div class="tema-obj-proposito" id="tema-obj-proposito"></div>
+        </div>
+        <div class="tema-mes-badge" id="tema-mes-badge"></div>
+        <div id="tema-perguntas"></div>
+        <button class="tema-save-btn" onclick="saveTema()">Salvar respostas</button>
+        <div class="saved-msg" id="tema-saved-msg"></div>
+      </div>
+      <!-- Leitura -->
+      <div id="tema-view-leitura" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Leitura do Tema do Mês</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1.25rem;">O Amor é muito mais que o amor — Pe. Henri Caffarel</div>
+        <div class="tema-cap-list" id="tema-cap-list"></div>
+      </div>
     </div>
 
     <!-- PARTILHA -->
@@ -354,17 +398,17 @@ var SPLASH_IMAGEM = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUD
 var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
-var TEMA_TITULO_OBJ = 'Capítulo 4: Vocação do amor.';
-var TEMA_TEXTO_OBJ = 'Objetivo: Experimentar a dimensão mais profunda do amor 
-que só pode ser realizada a partir do mistério do Deus Amor, que nos criou à sua imagem e semelhança, para vivermosem profundidade o amor.';
+var TEMA_TITULO_OBJ = 'Capítulo 4: Vocação do Amor';
+var TEMA_TEXTO_OBJ = 'Objetivo: Experimentar a dimensão mais profunda do amor que só pode ser realizada a partir do mistério do Deus Amor, que nos criou à sua imagem e semelhança, para vivermos em profundidade o amor.';
+var TEMA_PROPOSITO = 'Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.';
 var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 4';
 var TEMA_MES = 'Junho / 2026';
 var TEMA_PERGUNTAS = [
   'Compartilhemos o fruto da nossa reflexão durante o Dever de Sentar-se sobre como vivemos o sacramento em nossa relação conjugal.',
-  '“Se há engano, não é o amor o culpado, mas aqueles que dele fazem um deus todo-poderoso, capaz de saciar o coração humano. Eis a grande mentira.”\nProvavelmente já constatamos isso para nós mesmos ou para nossos próximos.\nComo isso nos impulsiona a ser testemunhas da boa nova do matrimônio cristão?\nEm particular, diante de nossos filhos, netos, afilhados...?\nComo podemos nos proteger do risco de acreditar, algum dia, que nosso amor humano será suficiente para nos saciar plenamente?',
-  'Fala-se frequentemente das graças do sacramento do matrimônio. Após a leitura desses textos do Padre Henri Caffarel e da nossa reflexão (“dever de sentar-se”), podemos nomeá-las, distinguindo as graças que vivemos daquelas que são mais difíceis de perceber?\nEm que medida isso nos conforta em sentir a presença de Deus no amor conjugal?\nConsideramos nosso sacramento do matrimônio como um tesouro? Ele nos conduz à santidade? Ele nos impulsiona a testemunhar?',
-  'Como podemos apoiar-nos em nosso sacramento do matrimônio para superar certas dificuldades e para que nosso amor se torne cada vez mais desinteressado?'
-  '“Graças à oração e aos sacramentos, os esposos bebem das fontes da graça divina. A Penitência alimenta a transparência de seus corações, e aquela centelha de fogo que a Eucaristia deposita em cada um ilumina e aquece a sua vida conjugal”. Como nossa oração pessoal e conjugal nos permite “beber das fontes da graça divina”? De que maneira “essa centelha de fogo” que é a Eucaristia “ilumina e aquece nossa vida conjugal”?\nNos preocupamos em decidir juntos, antes de cada Eucaristia, a oferta comum que vamos levar para que nossa vida conjugal seja concretamente transformada?'
+  '"Se há engano, não é o amor o culpado, mas aqueles que dele fazem um deus todo-poderoso, capaz de saciar o coração humano. Eis a grande mentira." Provavelmente já constatamos isso para nós mesmos ou para nossos próximos. Como isso nos impulsiona a ser testemunhas da boa nova do matrimônio cristão? Em particular, diante de nossos filhos, netos, afilhados...? Como podemos nos proteger do risco de acreditar, algum dia, que nosso amor humano será suficiente para nos saciar plenamente?',
+  'Fala-se frequentemente das graças do sacramento do matrimônio. Após a leitura dos textos do Padre Henri Caffarel e da nossa reflexão (dever de sentar-se), podemos nomeá-las, distinguindo as graças que vivemos daquelas que são mais difíceis de perceber? Em que medida isso nos conforta em sentir a presença de Deus no amor conjugal? Consideramos nosso sacramento do matrimônio como um tesouro? Ele nos conduz à santidade? Ele nos impulsiona a testemunhar?',
+  'Como podemos apoiar-nos em nosso sacramento do matrimônio para superar certas dificuldades e para que nosso amor se torne cada vez mais desinteressado?',
+  '"Graças à oração e aos sacramentos, os esposos bebem das fontes da graça divina. A Penitência alimenta a transparência de seus corações, e aquela centelha de fogo que a Eucaristia deposita em cada um ilumina e aquece a sua vida conjugal." Como nossa oração pessoal e conjugal nos permite beber das fontes da graça divina? De que maneira essa centelha de fogo que é a Eucaristia ilumina e aquece nossa vida conjugal? Nos preocupamos em decidir juntos, antes de cada Eucaristia, a oferta comum que vamos levar para que nossa vida conjugal seja concretamente transformada? Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.'
 ];
 
 var ORACOES = [
@@ -374,7 +418,7 @@ var ORACOES = [
   },
   {
     titulo: 'Oração Pelo Conselheiro Espiritual',
-    texto: 'Senhor Jesus Cristo que como Bom Pastor das nossas almas,\ndignai habitar entre nós, no Santíssimo Sacramento do Altar de Vosso tabernáculo, derramai graças sobre o Vosso Bom Pastor, Frei Alex, Conselheiro Espiritual da nossa equipe.\n\nConceda-lhe, pelo Vosso misericordioso coração, todas as graças\nde que precisa para a nossa e sua santificação e salvação.\n\nVele sempre com paternal dedicação pelas ovelhas que lhes foram\nconfiadas pelo Espírito Santo.\n\nAbençoai-o quando na oração levanta a mente para Vós.\nAbençoai-o, quando nos prega a Vossa santa lei.\nAbençoai-o, também, quando no desempenho do seu ministério de\nsacerdote, trabalha para a salvação das almas.\n\nFazei que seja sempre desvelado pastor segundo o Vosso divino\ncoração, que consagre inteira e constantemente a sua vida, o melhor de suas energias e de seus talentos, ao fiel cumprimento de sua nobre missão e dos deveres inerentes ao cargo, a fim de que, no dia em que vierdes a julgar rebanhos e pastores, nós sejamos sua alegria e sua coroa, e ele receba de vossas mãos divinas, a coroa imarcescível da vida eterna."\n\nNós Vos pedimos, Senhor.\nAmém.'
+    texto: 'Senhor Jesus Cristo que como Bom Pastor das nossas almas,\ndignai habitar entre nós, no Santíssimo Sacramento do Altar de Vosso tabernáculo, derramai graças sobre o Vosso Bom Pastor, Frei Alex, Conselheiro Espiritual da nossa equipe.\n\nConceda-lhe, pelo Vosso misericordioso coração, todas as graças\nde que precisa para a nossa e sua santificação e salvação.\n\nVele sempre com paternal dedicação pelas ovelhas que lhes foram\nconfiadas pelo Espírito Santo.\n\nAbençoai-o quando na oração levanta a mente para Vós.\nAbençoai-o, quando nos prega a Vossa santa lei.\nAbençoai-o, também, quando no desempenho do seu ministério de\nsacerdote, trabalha para a salvação das almas.\n\nFazei que seja sempre desvelado pastor segundo o Vosso divino\ncoração, que consagre inteira e constantemente a sua vida, o melhor de suas energias e de seus talentos, ao fiel cumprimento de sua nobre missão e dos deveres inerentes ao cargo, a fim de que, no dia em que vierdes a julgar rebanhos e pastores, nós sejamos sua alegria e sua coroa, e ele receba de vossas mãos divinas, a coroa imarcescível da vida eterna.\n\nNós Vos pedimos, Senhor.\nAmém.'
   },
   {
     titulo: 'Oração pela Beatificação do Padre Caffarel',
@@ -584,9 +628,53 @@ function saveToday(){
 }
 
 // ---- Tema ----
+var TEMA_CAPITULOS = [
+  {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%201.pdf'},
+  {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%202.pdf'},
+  {label: 'Capítulo 3', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%203.pdf'},
+  {label: 'Capítulo 4', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%204.pdf'},
+  {label: 'Capítulo 5', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%205.pdf'},
+  {label: 'Capítulo 6', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%206.pdf'},
+  {label: 'Capítulo 7', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%207.pdf'},
+  {label: 'Capítulo 8', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%208.pdf'},
+  {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%209.pdf'},
+];
+
+function showTemaMenu(){
+  document.getElementById('tema-view-menu').style.display='block';
+  document.getElementById('tema-view-perguntas').style.display='none';
+  document.getElementById('tema-view-leitura').style.display='none';
+  document.getElementById('tema-menu-mes').textContent=TEMA_MES;
+}
+function showTemaPerguntas(){
+  document.getElementById('tema-view-menu').style.display='none';
+  document.getElementById('tema-view-perguntas').style.display='block';
+  document.getElementById('tema-view-leitura').style.display='none';
+  renderTemaPerguntas();
+}
+function showTemaLeitura(){
+  document.getElementById('tema-view-menu').style.display='none';
+  document.getElementById('tema-view-perguntas').style.display='none';
+  document.getElementById('tema-view-leitura').style.display='block';
+  var list=document.getElementById('tema-cap-list');
+  list.innerHTML='';
+  TEMA_CAPITULOS.forEach(function(cap){
+    var btn=document.createElement('button');
+    btn.className='tema-cap-btn';
+    btn.innerHTML='<div class="tema-cap-num">'+cap.label.replace('Capítulo ','')+'</div>'+
+      '<div class="tema-cap-label">'+cap.label+'</div>'+
+      '<div style="margin-left:auto;font-size:16px;color:var(--text3);">›</div>';
+    btn.onclick=function(){window.open(cap.url,'_blank');};
+    list.appendChild(btn);
+  });
+}
 function renderTema(){
+  showTemaMenu();
+}
+function renderTemaPerguntas(){
   document.getElementById('tema-obj-titulo').textContent=TEMA_TITULO_OBJ;
   document.getElementById('tema-obj-texto').textContent=TEMA_TEXTO_OBJ;
+  document.getElementById('tema-obj-proposito').textContent=TEMA_PROPOSITO;
   document.getElementById('tema-mes-badge').textContent=TEMA_MES;
   var saved=lsGet('tema_resp_'+TEMA_MES,{});
   var cont=document.getElementById('tema-perguntas');cont.innerHTML='';
