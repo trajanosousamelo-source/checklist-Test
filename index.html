@@ -171,7 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.1.5</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.1.6</span>
   </div>
 </div>
 
@@ -216,6 +216,26 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
             <div><div class="tema-menu-label">Leitura do Tema do Mês</div>
             <div class="tema-menu-sub">Acesse os capítulos do livro</div></div>
           </button>
+          <button class="tema-menu-btn" onclick="showTemaDever()">
+            <div class="tema-menu-icon" style="background:#fff3e0;">🙏</div>
+            <div><div class="tema-menu-label">Dever de Sentar-se – Proposta de Perguntas</div>
+            <div class="tema-menu-sub">Sugestões para reflexão em casal</div></div>
+          </button>
+          <button class="tema-menu-btn" onclick="showTemaMeditacao()">
+            <div class="tema-menu-icon" style="background:#f3e5f5;">✍️</div>
+            <div><div class="tema-menu-label">Texto de Meditação</div>
+            <div class="tema-menu-sub">Leia, reflita e registre sua meditação</div></div>
+          </button>
+          <button class="tema-menu-btn" onclick="showTemaBiblica()">
+            <div class="tema-menu-icon" style="background:#e8f5e9;">📜</div>
+            <div><div class="tema-menu-label">Leitura Bíblica</div>
+            <div class="tema-menu-sub">Texto bíblico sugerido para o mês</div></div>
+          </button>
+          <button class="tema-menu-btn" onclick="showTemaIntencoes()">
+            <div class="tema-menu-icon" style="background:#fce4ec;">💝</div>
+            <div><div class="tema-menu-label">Intenções do Mês</div>
+            <div class="tema-menu-sub">Registre as intenções do casal</div></div>
+          </button>
         </div>
       </div>
       <!-- Perguntas -->
@@ -232,12 +252,52 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
         <button class="tema-save-btn" onclick="saveTema()">Salvar respostas</button>
         <div class="saved-msg" id="tema-saved-msg"></div>
       </div>
-      <!-- Leitura -->
+      <!-- Leitura capítulos -->
       <div id="tema-view-leitura" style="display:none;">
         <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
         <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Leitura do Tema do Mês</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:1.25rem;">O Amor é muito mais que o amor — Pe. Henri Caffarel</div>
+        <div style="font-size:12px;color:var(--blue);margin-bottom:1rem;">Após abrir o capítulo, use o botão Voltar do navegador para retornar.</div>
         <div class="tema-cap-list" id="tema-cap-list"></div>
+      </div>
+      <!-- Dever de Sentar-se -->
+      <div id="tema-view-dever" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div class="tema-obj-block" style="background:#fff3e0;border-color:rgba(255,152,0,0.2);">
+          <div class="tema-obj-label" style="color:#e65100;">Dever de Sentar-se</div>
+          <div id="tema-dever-texto" style="font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+      <!-- Meditação -->
+      <div id="tema-view-meditacao" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div class="tema-obj-block" style="background:#f3e5f5;border-color:rgba(156,39,176,0.2);">
+          <div class="tema-obj-label" style="color:#6a1b9a;">Texto de Meditação</div>
+          <div id="tema-meditacao-texto" style="font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin-bottom:1rem;"></div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:1rem 0 6px;">Minha meditação</div>
+        <textarea id="tema-meditacao-resp" class="tema-q-resp" style="min-height:120px;" placeholder="Escreva sua meditação..."></textarea>
+        <button class="tema-save-btn" style="margin-top:10px;" onclick="saveTextoExtra('meditacao')">Salvar meditação</button>
+        <div class="saved-msg" id="tema-meditacao-saved"></div>
+        <button class="tema-save-btn" style="margin-top:8px;background:var(--text2);" onclick="exportTextoExtra('meditacao')">Exportar / Imprimir</button>
+      </div>
+      <!-- Leitura Bíblica -->
+      <div id="tema-view-biblica" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div class="tema-obj-block" style="background:#e8f5e9;border-color:rgba(46,125,50,0.2);">
+          <div class="tema-obj-label" style="color:#1b5e20;">Leitura Bíblica</div>
+          <div id="tema-biblica-texto" style="font-size:14px;color:var(--text);line-height:1.8;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+      <!-- Intenções do Mês -->
+      <div id="tema-view-intencoes" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Intenções do Mês</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1rem;" id="tema-intencoes-mes"></div>
+        <textarea id="tema-intencoes-resp" class="tema-q-resp" style="min-height:150px;" placeholder="Digite as intenções do casal para este mês..."></textarea>
+        <button class="tema-save-btn" style="margin-top:10px;" onclick="saveTextoExtra('intencoes')">Salvar intenções</button>
+        <div class="saved-msg" id="tema-intencoes-saved"></div>
+        <button class="tema-save-btn" style="margin-top:8px;background:var(--text2);" onclick="exportTextoExtra('intencoes')">Exportar / Imprimir</button>
       </div>
     </div>
 
@@ -398,17 +458,13 @@ var SPLASH_IMAGEM = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUD
 var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
-var TEMA_TITULO_OBJ = 'Capítulo 4: Vocação do Amor';
-var TEMA_TEXTO_OBJ = 'Objetivo: Experimentar a dimensão mais profunda do amor que só pode ser realizada a partir do mistério do Deus Amor, que nos criou à sua imagem e semelhança, para vivermos em profundidade o amor.';
+var TEMA_TITULO_OBJ = 'Capítulo 5: Vocação do Amor';
+var TEMA_TEXTO_OBJ = 'Objetivo: Mostrar que o amor sempre pode evoluir em vista de uma felicidade cada vez maior e que todos os casais devem assumir esse compromisso.';
 var TEMA_PROPOSITO = 'Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.';
-var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 4';
-var TEMA_MES = 'Junho / 2026';
+var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 5';
+var TEMA_MES = 'Julho / 2026';
 var TEMA_PERGUNTAS = [
-  'Compartilhemos o fruto da nossa reflexão durante o Dever de Sentar-se sobre como vivemos o sacramento em nossa relação conjugal.',
-  '"Se há engano, não é o amor o culpado, mas aqueles que dele fazem um deus todo-poderoso, capaz de saciar o coração humano. Eis a grande mentira." Provavelmente já constatamos isso para nós mesmos ou para nossos próximos. Como isso nos impulsiona a ser testemunhas da boa nova do matrimônio cristão? Em particular, diante de nossos filhos, netos, afilhados...? Como podemos nos proteger do risco de acreditar, algum dia, que nosso amor humano será suficiente para nos saciar plenamente?',
-  'Fala-se frequentemente das graças do sacramento do matrimônio. Após a leitura dos textos do Padre Henri Caffarel e da nossa reflexão (dever de sentar-se), podemos nomeá-las, distinguindo as graças que vivemos daquelas que são mais difíceis de perceber? Em que medida isso nos conforta em sentir a presença de Deus no amor conjugal? Consideramos nosso sacramento do matrimônio como um tesouro? Ele nos conduz à santidade? Ele nos impulsiona a testemunhar?',
-  'Como podemos apoiar-nos em nosso sacramento do matrimônio para superar certas dificuldades e para que nosso amor se torne cada vez mais desinteressado?',
-  '"Graças à oração e aos sacramentos, os esposos bebem das fontes da graça divina. A Penitência alimenta a transparência de seus corações, e aquela centelha de fogo que a Eucaristia deposita em cada um ilumina e aquece a sua vida conjugal." Como nossa oração pessoal e conjugal nos permite beber das fontes da graça divina? De que maneira essa centelha de fogo que é a Eucaristia ilumina e aquece nossa vida conjugal? Nos preocupamos em decidir juntos, antes de cada Eucaristia, a oferta comum que vamos levar para que nossa vida conjugal seja concretamente transformada? Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.'
+  'Neste capítulo propusemos numerosas e variadas perguntas para o Dever de Sentar-se. Propomos que, na reunião, haja um tempo de partilha sobre este ponto concreto de esforço. Cada casal pode escolher as perguntas sobre as quais tenha refletido e deseje partilhar de forma mais específica durante a reunião.'
 ];
 
 var ORACOES = [
@@ -628,6 +684,9 @@ function saveToday(){
 }
 
 // ---- Tema ----
+var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 5\n\nNeste capítulo propusemos numerosas e variadas perguntas para o Dever de Sentar-se. Cada casal pode escolher as perguntas sobre as quais tenha refletido e deseje partilhar de forma mais específica durante a reunião.\n\nSugestões de perguntas:\n• Como nosso amor tem evoluído ao longo do tempo? Identificamos momentos de crescimento e momentos de estagnação?\n• O que nos impede de buscar uma felicidade cada vez maior em nosso matrimônio?\n• De que maneira assumimos juntos o compromisso de fazer nosso amor crescer?\n• Como a graça do sacramento do matrimônio nos ajuda nesse processo de evolução do amor?\n• Quais atitudes concretas podemos adotar para que nosso amor seja cada vez mais pleno?';
+var TEMA_MEDITACAO_TEXTO = 'Salmo 8\n\nÓ Senhor nosso Deus, como é grande vosso nome por todo o universo!\nDesdobrastes nos céus vossa glória com grandeza, esplendor, majestade.\nO perfeito louvor vos é dado pelos lábios dos mais pequeninos, de crianças que a mãe amamenta.\nEis a força que opondes aos maus, reduzindo o inimigo ao silêncio.\nContemplando estes céus que plasmastes e formastes com dedos de artista; vendo a lua e estrelas brilhantes, perguntamos:\n"Senhor, que é o homem, para dele assim vos lembrardes e o tratardes com tanto carinho?"\nPouco abaixo de Deus o fizestes, coroando-o de glória e esplendor; vós lhe destes poder sobre tudo, vossas obras aos pés lhe pusestes: as ovelhas, os bois, os rebanhos, todo o gado e as feras da mata; passarinhos e peixes dos mares, todo ser que se move nas águas.\nÓ Senhor nosso Deus, como é grande vosso nome por todo o universo!';
+var TEMA_BIBLICA_TEXTO = 'Colossenses 3, 12-17\n\nPortanto, como eleitos de Deus, santos e amados, vestí-vos com sentimentos de compaixão, com bondade, humildade, mansidão, paciência: suportai-vos uns aos outros e, se um tiver motivo de queixa contra o outro, perdoai-vos mutuamente. Como o Senhor vos perdoou, fazei assim também vós. Sobretudo, revesti-vos do amor, que é o vínculo da perfeição. Reine em vossos corações a paz de Cristo, para a qual também fostes chamados em um só corpo. E sede agradecidos. Que a palavra de Cristo habite em vós com abundância. Com toda a sabedoria, instruí-vos e aconselhai-vos uns aos outros. Movidos pela graça, cantai a Deus, em vossos corações, com salmos, hinos e cânticos inspirados pelo Espírito. E tudo o que disserdes ou fizerdes, que seja sempre no nome do Senhor Jesus, por ele dando graças a Deus Pai.';
 var TEMA_CAPITULOS = [
   {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%201.pdf'},
   {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%202.pdf'},
@@ -640,37 +699,97 @@ var TEMA_CAPITULOS = [
   {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%209.pdf'},
 ];
 
+
 function showTemaMenu(){
-  document.getElementById('tema-view-menu').style.display='block';
-  document.getElementById('tema-view-perguntas').style.display='none';
-  document.getElementById('tema-view-leitura').style.display='none';
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='menu'?'block':'none';
+  });
   document.getElementById('tema-menu-mes').textContent=TEMA_MES;
 }
 function showTemaPerguntas(){
-  document.getElementById('tema-view-menu').style.display='none';
-  document.getElementById('tema-view-perguntas').style.display='block';
-  document.getElementById('tema-view-leitura').style.display='none';
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='perguntas'?'block':'none';
+  });
   renderTemaPerguntas();
 }
 function showTemaLeitura(){
-  document.getElementById('tema-view-menu').style.display='none';
-  document.getElementById('tema-view-perguntas').style.display='none';
-  document.getElementById('tema-view-leitura').style.display='block';
-  var list=document.getElementById('tema-cap-list');
-  list.innerHTML='';
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='leitura'?'block':'none';
+  });
+  var list=document.getElementById('tema-cap-list');list.innerHTML='';
   TEMA_CAPITULOS.forEach(function(cap){
-    var btn=document.createElement('button');
-    btn.className='tema-cap-btn';
+    var btn=document.createElement('button');btn.className='tema-cap-btn';
     btn.innerHTML='<div class="tema-cap-num">'+cap.label.replace('Capítulo ','')+'</div>'+
       '<div class="tema-cap-label">'+cap.label+'</div>'+
       '<div style="margin-left:auto;font-size:16px;color:var(--text3);">›</div>';
-    btn.onclick=function(){window.open(cap.url,'_blank');};
+    btn.onclick=(function(u){return function(){window.open(u,'_blank');}})(cap.url);
     list.appendChild(btn);
   });
 }
-function renderTema(){
-  showTemaMenu();
+function showTemaDever(){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='dever'?'block':'none';
+  });
+  document.getElementById('tema-dever-texto').textContent=TEMA_DEVER;
 }
+function showTemaMeditacao(){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='meditacao'?'block':'none';
+  });
+  document.getElementById('tema-meditacao-texto').textContent=TEMA_MEDITACAO_TEXTO;
+  var saved=lsGet('meditacao_'+TEMA_MES,'');
+  document.getElementById('tema-meditacao-resp').value=saved;
+}
+function showTemaBiblica(){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='biblica'?'block':'none';
+  });
+  document.getElementById('tema-biblica-texto').textContent=TEMA_BIBLICA_TEXTO;
+}
+function showTemaIntencoes(){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='intencoes'?'block':'none';
+  });
+  document.getElementById('tema-intencoes-mes').textContent=TEMA_MES;
+  var saved=lsGet('intencoes_'+TEMA_MES,'');
+  document.getElementById('tema-intencoes-resp').value=saved;
+}
+function saveTextoExtra(tipo){
+  var val=document.getElementById('tema-'+tipo+'-resp').value;
+  lsSet(tipo+'_'+TEMA_MES,val);
+  var m=document.getElementById('tema-'+tipo+'-saved');
+  m.textContent='Salvo!';setTimeout(function(){m.textContent='';},2000);
+}
+function exportTextoExtra(tipo){
+  var val=document.getElementById('tema-'+tipo+'-resp').value;
+  var titulo=tipo==='meditacao'?'Meditação do Mês':'Intenções do Mês';
+  var textoBase=tipo==='meditacao'?TEMA_MEDITACAO_TEXTO:'';
+  // Perguntar se deseja incluir o outro
+  var outro=tipo==='meditacao'?'intencoes':'meditacao';
+  var outroTitulo=tipo==='meditacao'?'Intenções do Mês':'Meditação do Mês';
+  var outroVal=lsGet(outro+'_'+TEMA_MES,'');
+  var incluirOutro=outroVal&&confirm('Deseja incluir também as '+outroTitulo+' no mesmo documento?');
+  var css='<style>body{font-family:Arial,sans-serif;padding:2rem;color:#1a1a18;max-width:700px;margin:0 auto;}'+
+    'h2{font-size:16px;font-weight:700;margin-bottom:4px;color:#1a4f8a;}'+
+    '.sub{font-size:11px;color:#888;margin-bottom:1rem;}'+
+    '.bloco{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid #eee;}'+
+    '.texto-base{font-size:13px;color:#444;line-height:1.7;white-space:pre-wrap;margin-bottom:1rem;background:#f5f4f0;padding:12px;border-radius:6px;}'+
+    '.resposta{font-size:13px;color:#1a1a18;line-height:1.7;white-space:pre-wrap;}</style>';
+  var body='<h2>ENS - PCEs</h2><p class="sub">'+TEMA_MES+(userName?' &middot; '+userName:'')+'</p>';
+  body+='<div class="bloco"><h2>'+titulo+'</h2>';
+  if(textoBase)body+='<div class="texto-base">'+textoBase.replace(/</g,'&lt;')+'</div>';
+  body+='<div class="resposta">'+(val||'(sem registro)').replace(/</g,'&lt;')+'</div></div>';
+  if(incluirOutro){
+    var outroBase=outro==='meditacao'?TEMA_MEDITACAO_TEXTO:'';
+    body+='<div class="bloco"><h2>'+outroTitulo+'</h2>';
+    if(outroBase)body+='<div class="texto-base">'+outroBase.replace(/</g,'&lt;')+'</div>';
+    body+='<div class="resposta">'+(outroVal||'(sem registro)').replace(/</g,'&lt;')+'</div></div>';
+  }
+  var w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">'+css+'</head><body>'+body+'</body></html>');
+  w.document.close();setTimeout(function(){w.print();},600);
+}
+function renderTema(){ showTemaMenu(); }
 function renderTemaPerguntas(){
   document.getElementById('tema-obj-titulo').textContent=TEMA_TITULO_OBJ;
   document.getElementById('tema-obj-texto').textContent=TEMA_TEXTO_OBJ;
