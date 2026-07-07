@@ -171,7 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.1.6</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.1.9</span>
   </div>
 </div>
 
@@ -257,8 +257,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
         <button class="tema-back-btn" onclick="showTemaMenu()">← Voltar</button>
         <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Leitura do Tema do Mês</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:1.25rem;">O Amor é muito mais que o amor — Pe. Henri Caffarel</div>
-        <div style="font-size:12px;color:var(--blue);margin-bottom:1rem;">Após abrir o capítulo, use o botão Voltar do navegador para retornar.</div>
         <div class="tema-cap-list" id="tema-cap-list"></div>
+      </div>
+      <!-- Leitor de PDF -->
+      <div id="tema-view-pdf" style="display:none;">
+        <button class="tema-back-btn" onclick="showTemaLeitura()">← Voltar aos capítulos</button>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;" id="tema-pdf-titulo"></div>
+        <iframe id="tema-pdf-frame"
+          style="width:100%;height:75vh;border:0.5px solid var(--border);border-radius:var(--radius);background:#fff;"
+          src=""></iframe>
       </div>
       <!-- Dever de Sentar-se -->
       <div id="tema-view-dever" style="display:none;">
@@ -267,6 +274,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
           <div class="tema-obj-label" style="color:#e65100;">Dever de Sentar-se</div>
           <div id="tema-dever-texto" style="font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;"></div>
         </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:1rem 0 6px;">Minhas reflexões</div>
+        <textarea id="tema-dever-resp" class="tema-q-resp" style="min-height:120px;" placeholder="Escreva suas reflexões sobre o dever de sentar-se..."></textarea>
+        <button class="tema-save-btn" style="margin-top:10px;background:#e65100;" onclick="saveTextoExtra('dever')">Salvar reflexões</button>
+        <div class="saved-msg" id="tema-dever-saved"></div>
+        <button class="tema-save-btn" style="margin-top:8px;background:var(--text2);" onclick="exportTextoExtra('dever')">Exportar / Imprimir</button>
       </div>
       <!-- Meditação -->
       <div id="tema-view-meditacao" style="display:none;">
@@ -288,6 +300,11 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
           <div class="tema-obj-label" style="color:#1b5e20;">Leitura Bíblica</div>
           <div id="tema-biblica-texto" style="font-size:14px;color:var(--text);line-height:1.8;white-space:pre-wrap;"></div>
         </div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin:1rem 0 6px;">Minha reflexão bíblica</div>
+        <textarea id="tema-biblica-resp" class="tema-q-resp" style="min-height:120px;" placeholder="Escreva sua reflexão sobre a leitura bíblica..."></textarea>
+        <button class="tema-save-btn" style="margin-top:10px;background:#2e7d32;" onclick="saveTextoExtra('biblica')">Salvar reflexão</button>
+        <div class="saved-msg" id="tema-biblica-saved"></div>
+        <button class="tema-save-btn" style="margin-top:8px;background:var(--text2);" onclick="exportTextoExtra('biblica')">Exportar / Imprimir</button>
       </div>
       <!-- Intenções do Mês -->
       <div id="tema-view-intencoes" style="display:none;">
@@ -701,19 +718,19 @@ var TEMA_CAPITULOS = [
 
 
 function showTemaMenu(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='menu'?'block':'none';
   });
   document.getElementById('tema-menu-mes').textContent=TEMA_MES;
 }
 function showTemaPerguntas(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='perguntas'?'block':'none';
   });
   renderTemaPerguntas();
 }
 function showTemaLeitura(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='leitura'?'block':'none';
   });
   var list=document.getElementById('tema-cap-list');list.innerHTML='';
@@ -722,18 +739,20 @@ function showTemaLeitura(){
     btn.innerHTML='<div class="tema-cap-num">'+cap.label.replace('Capítulo ','')+'</div>'+
       '<div class="tema-cap-label">'+cap.label+'</div>'+
       '<div style="margin-left:auto;font-size:16px;color:var(--text3);">›</div>';
-    btn.onclick=(function(u){return function(){window.open(u,'_blank');}})(cap.url);
+    btn.onclick=(function(u,l){return function(){openPDFView(u,l);}})(cap.url,cap.label);
     list.appendChild(btn);
   });
 }
 function showTemaDever(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='dever'?'block':'none';
   });
   document.getElementById('tema-dever-texto').textContent=TEMA_DEVER;
+  var saved=lsGet('dever_'+TEMA_MES,'');
+  document.getElementById('tema-dever-resp').value=saved;
 }
 function showTemaMeditacao(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='meditacao'?'block':'none';
   });
   document.getElementById('tema-meditacao-texto').textContent=TEMA_MEDITACAO_TEXTO;
@@ -741,13 +760,15 @@ function showTemaMeditacao(){
   document.getElementById('tema-meditacao-resp').value=saved;
 }
 function showTemaBiblica(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='biblica'?'block':'none';
   });
   document.getElementById('tema-biblica-texto').textContent=TEMA_BIBLICA_TEXTO;
+  var saved=lsGet('biblica_'+TEMA_MES,'');
+  document.getElementById('tema-biblica-resp').value=saved;
 }
 function showTemaIntencoes(){
-  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes'].forEach(function(v){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='intencoes'?'block':'none';
   });
   document.getElementById('tema-intencoes-mes').textContent=TEMA_MES;
@@ -762,11 +783,14 @@ function saveTextoExtra(tipo){
 }
 function exportTextoExtra(tipo){
   var val=document.getElementById('tema-'+tipo+'-resp').value;
-  var titulo=tipo==='meditacao'?'Meditação do Mês':'Intenções do Mês';
-  var textoBase=tipo==='meditacao'?TEMA_MEDITACAO_TEXTO:'';
+  var titulos={'meditacao':'Meditação do Mês','intencoes':'Intenções do Mês','dever':'Dever de Sentar-se','biblica':'Leitura Bíblica'};
+  var titulo=titulos[tipo]||tipo;
+  var textoBases={'meditacao':TEMA_MEDITACAO_TEXTO,'biblica':TEMA_BIBLICA_TEXTO,'dever':TEMA_DEVER,'intencoes':''};
+  var textoBase=textoBases[tipo]||'';
   // Perguntar se deseja incluir o outro
-  var outro=tipo==='meditacao'?'intencoes':'meditacao';
-  var outroTitulo=tipo==='meditacao'?'Intenções do Mês':'Meditação do Mês';
+  var outrosMap={'meditacao':'intencoes','intencoes':'meditacao','dever':'biblica','biblica':'dever'};
+  var outro=outrosMap[tipo]||'';
+  var outroTitulo=outro?titulos[outro]:'';
   var outroVal=lsGet(outro+'_'+TEMA_MES,'');
   var incluirOutro=outroVal&&confirm('Deseja incluir também as '+outroTitulo+' no mesmo documento?');
   var css='<style>body{font-family:Arial,sans-serif;padding:2rem;color:#1a1a18;max-width:700px;margin:0 auto;}'+
@@ -780,7 +804,7 @@ function exportTextoExtra(tipo){
   if(textoBase)body+='<div class="texto-base">'+textoBase.replace(/</g,'&lt;')+'</div>';
   body+='<div class="resposta">'+(val||'(sem registro)').replace(/</g,'&lt;')+'</div></div>';
   if(incluirOutro){
-    var outroBase=outro==='meditacao'?TEMA_MEDITACAO_TEXTO:'';
+    var outroBase=textoBases[outro]||'';
     body+='<div class="bloco"><h2>'+outroTitulo+'</h2>';
     if(outroBase)body+='<div class="texto-base">'+outroBase.replace(/</g,'&lt;')+'</div>';
     body+='<div class="resposta">'+(outroVal||'(sem registro)').replace(/</g,'&lt;')+'</div></div>';
@@ -788,6 +812,15 @@ function exportTextoExtra(tipo){
   var w=window.open('','_blank');
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">'+css+'</head><body>'+body+'</body></html>');
   w.document.close();setTimeout(function(){w.print();},600);
+}
+function openPDFView(url, label){
+  ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
+    document.getElementById('tema-view-'+v).style.display=v==='pdf'?'block':'none';
+  });
+  document.getElementById('tema-pdf-titulo').textContent=label;
+  // Usar Google Docs Viewer para evitar bloqueio de iframe
+  var viewerUrl='https://docs.google.com/viewer?url='+encodeURIComponent(url)+'&embedded=true';
+  document.getElementById('tema-pdf-frame').src=viewerUrl;
 }
 function renderTema(){ showTemaMenu(); }
 function renderTemaPerguntas(){
