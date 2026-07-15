@@ -171,7 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.1.9</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.2.0</span>
   </div>
 </div>
 
@@ -1012,8 +1012,8 @@ function buildFolhaHTML(forExport){
   for(var j=0;j<10;j++){
     var rj=allR[j];var isCurJ=rj&&rj.current;
     var bgJ=isCurJ?'background:rgba(26,79,138,0.08);':'';
-    s+='<th style="text-align:center;padding:2px;font-size:8px;color:var(--text3);border-bottom:0.5px solid var(--border2);border-left:0.5px solid var(--border);width:22px;'+bgJ+'">Ela</th>';
-    s+='<th style="text-align:center;padding:2px;font-size:8px;color:var(--text3);border-bottom:0.5px solid var(--border2);width:22px;'+bgJ+'">Ele</th>';
+    s+='<th style="text-align:center;padding:2px;font-size:8px;font-weight:700;color:#c2185b;border-bottom:0.5px solid var(--border2);border-left:0.5px solid var(--border);width:22px;'+bgJ+'">Ela</th>';
+    s+='<th style="text-align:center;padding:2px;font-size:8px;font-weight:700;color:#1565c0;border-bottom:0.5px solid var(--border2);width:22px;'+bgJ+'">Ele</th>';
   }
   s+='</tr></thead><tbody>';
   var grupos=[
@@ -1102,7 +1102,7 @@ function buildReuniaoModal(eu, conjuge, dataVal){
       var row=document.createElement('div');row.style.cssText='display:flex;gap:10px;';
       function makeCol(displayName, quemKey, notaAtual, containerId){
         var col=document.createElement('div');col.style.flex='1';
-        var lbl=document.createElement('div');lbl.style.cssText='font-size:9px;color:var(--text3);margin-bottom:3px;';lbl.textContent=displayName;col.appendChild(lbl);
+        var lbl=document.createElement('div');var corLbl=displayName==='Ela'?'#c2185b':displayName==='Ele'?'#1565c0':'var(--text3)';lbl.style.cssText='font-size:9px;font-weight:700;color:'+corLbl+';margin-bottom:3px;';lbl.textContent=displayName;col.appendChild(lbl);
         var btns=document.createElement('div');btns.style.cssText='display:flex;gap:2px;flex-wrap:wrap;';btns.id=containerId;
         getNotasOptions(item.id).forEach(function(opt){
           var btn=document.createElement('button');btn.textContent=opt;
@@ -1263,7 +1263,7 @@ function buildFolhaPDFTable(){
   var s='<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><th style="text-align:left;padding:3px 5px;min-width:110px;border-bottom:1px solid #ddd;">Item</th>';
   for(var i=0;i<10;i++){var r=allR[i];var data=r?fmtDate(r.data):'';s+='<th colspan="2" style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #ddd;padding:2px;">'+(i+1)+(data?'<br/><span style="font-weight:400;font-size:8px;">'+data+'</span>':'')+'</th>';}
   s+='</tr><tr><th></th>';
-  for(var j=0;j<10;j++)s+='<th style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #ddd;font-size:8px;width:20px;">Ela</th><th style="text-align:center;border-bottom:1px solid #ddd;font-size:8px;width:20px;">Ele</th>';
+  for(var j=0;j<10;j++)s+='<th style="text-align:center;border-left:1px solid #eee;border-bottom:1px solid #ddd;font-size:8px;width:20px;color:#c2185b;font-weight:700;">Ela</th><th style="text-align:center;border-bottom:1px solid #ddd;font-size:8px;width:20px;color:#1565c0;font-weight:700;">Ele</th>';
   s+='</tr></thead><tbody>';
   var grupos=[{label:'Pontos Concretos de Esforco',items:TABELA_ITEMS.filter(function(it){return it.grupo==='PCE';})},{label:'Vida em Equipe',items:TABELA_ITEMS.filter(function(it){return it.grupo==='VE';})}];
   grupos.forEach(function(g){
