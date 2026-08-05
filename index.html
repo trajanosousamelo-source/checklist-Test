@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ENS - PCEs [TESTE]</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzNiIgZmlsbD0iI2MwMzkyYiIvPjx0ZXh0IHg9Ijk2IiB5PSI4NSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iNDQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UENFczwvdGV4dD48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5URVNURTwvdGV4dD48L3N2Zz4="/>
+<title>ENS - PCEs</title>
+<link rel="apple-touch-icon" href="icon.png"/>
+<link rel="icon" type="image/png" href="icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="PCEs TESTE"/>
+<meta name="apple-mobile-web-app-title" content="PCEs"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
@@ -171,7 +172,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.2.0</span>
+    <span class="splash-badge">v1.2.1</span>
   </div>
 </div>
 
@@ -475,13 +476,16 @@ var SPLASH_IMAGEM = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUD
 var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
-var TEMA_TITULO_OBJ = 'Capítulo 5: Vocação do Amor';
-var TEMA_TEXTO_OBJ = 'Objetivo: Mostrar que o amor sempre pode evoluir em vista de uma felicidade cada vez maior e que todos os casais devem assumir esse compromisso.';
+var TEMA_TITULO_OBJ = 'Capítulo 6: Cultivar o amor conjugal';
+var TEMA_TEXTO_OBJ = 'Objetivo: Mostrar que o cultivo do amor conjugal passa necessariamente pela compreensão do que é o verdadeiro amor e pelas exigências do conhecimento e do cuidado.';
 var TEMA_PROPOSITO = 'Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.';
-var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 5';
-var TEMA_MES = 'Julho / 2026';
+var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 6';
+var TEMA_MES = 'Agosto / 2026';
 var TEMA_PERGUNTAS = [
-  'Neste capítulo propusemos numerosas e variadas perguntas para o Dever de Sentar-se. Propomos que, na reunião, haja um tempo de partilha sobre este ponto concreto de esforço. Cada casal pode escolher as perguntas sobre as quais tenha refletido e deseje partilhar de forma mais específica durante a reunião.'
+  'O que descobrimos ao ler esses textos do padre Caffarel? O que desejamos partilhar do nosso Dever de Sentar-se?',
+  'Em que medida a equipe nos estimula a amar com um amor sempre mais entregue ao cônjuge e a Deus?',
+  'Compartilhamos com facilidade com nosso cônjuge sobre nossa relação com Deus, nossa vida espiritual? Como fazemos isso? De que forma essa ajuda espiritual melhora a qualidade do nosso amor conjugal?',
+  'Para viver esse nível de ágape, precisamos da ajuda do nosso Senhor. Devemos ter a coragem de pedir essa ajuda. A oração tem sido um ponto concreto de esforço que, aos poucos, conseguimos incluir no nosso dia a dia? Temos dificuldade? Como nos ajudamos mutuamente? Como a equipe nos ajuda? Façamos as mesmas perguntas em relação à nossa oração conjugal — ela pode ser o lugar onde confiamos ao Senhor nosso amor, nossas alegrias e nossas dificuldades para amar como Ele nos ama.'
 ];
 
 var ORACOES = [
@@ -701,19 +705,19 @@ function saveToday(){
 }
 
 // ---- Tema ----
-var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 5\n\nNeste capítulo propusemos numerosas e variadas perguntas para o Dever de Sentar-se. Cada casal pode escolher as perguntas sobre as quais tenha refletido e deseje partilhar de forma mais específica durante a reunião.\n\nSugestões de perguntas:\n• Como nosso amor tem evoluído ao longo do tempo? Identificamos momentos de crescimento e momentos de estagnação?\n• O que nos impede de buscar uma felicidade cada vez maior em nosso matrimônio?\n• De que maneira assumimos juntos o compromisso de fazer nosso amor crescer?\n• Como a graça do sacramento do matrimônio nos ajuda nesse processo de evolução do amor?\n• Quais atitudes concretas podemos adotar para que nosso amor seja cada vez mais pleno?';
-var TEMA_MEDITACAO_TEXTO = 'Salmo 8\n\nÓ Senhor nosso Deus, como é grande vosso nome por todo o universo!\nDesdobrastes nos céus vossa glória com grandeza, esplendor, majestade.\nO perfeito louvor vos é dado pelos lábios dos mais pequeninos, de crianças que a mãe amamenta.\nEis a força que opondes aos maus, reduzindo o inimigo ao silêncio.\nContemplando estes céus que plasmastes e formastes com dedos de artista; vendo a lua e estrelas brilhantes, perguntamos:\n"Senhor, que é o homem, para dele assim vos lembrardes e o tratardes com tanto carinho?"\nPouco abaixo de Deus o fizestes, coroando-o de glória e esplendor; vós lhe destes poder sobre tudo, vossas obras aos pés lhe pusestes: as ovelhas, os bois, os rebanhos, todo o gado e as feras da mata; passarinhos e peixes dos mares, todo ser que se move nas águas.\nÓ Senhor nosso Deus, como é grande vosso nome por todo o universo!';
-var TEMA_BIBLICA_TEXTO = 'Colossenses 3, 12-17\n\nPortanto, como eleitos de Deus, santos e amados, vestí-vos com sentimentos de compaixão, com bondade, humildade, mansidão, paciência: suportai-vos uns aos outros e, se um tiver motivo de queixa contra o outro, perdoai-vos mutuamente. Como o Senhor vos perdoou, fazei assim também vós. Sobretudo, revesti-vos do amor, que é o vínculo da perfeição. Reine em vossos corações a paz de Cristo, para a qual também fostes chamados em um só corpo. E sede agradecidos. Que a palavra de Cristo habite em vós com abundância. Com toda a sabedoria, instruí-vos e aconselhai-vos uns aos outros. Movidos pela graça, cantai a Deus, em vossos corações, com salmos, hinos e cânticos inspirados pelo Espírito. E tudo o que disserdes ou fizerdes, que seja sempre no nome do Senhor Jesus, por ele dando graças a Deus Pai.';
+var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 6\n\n1. O ágape conjugal, o amor e o ágape. Trata-se de amar com o mesmo amor de Cristo, com esse impulso de amor desinteressado, totalmente voltado à felicidade do nosso cônjuge. "Amai-vos uns aos outros como eu vos amei!" O que vocês, marido e mulher, vão fazer para responder a essa exigência de Cristo, para adquirir e crescer nesse amor, esse ágape conjugal?\n\n2. Conhecer-se e deixar-se conhecer. Será que nos olhamos todos os dias com um olhar novo? Ainda nos encantamos com o rosto, com as qualidades morais, mas sobretudo com o eu profundo do nosso cônjuge? Estamos suficientemente abertos para revelar nossos pensamentos, sentimentos, nosso eu íntimo? Podemos dar exemplos concretos do que temos partilhado — e talvez do que ainda guardamos para nós, mas poderíamos ter dito?\n\n3. "Mas o ágape exige mais: permitir que seu cônjuge entre na sua intimidade com Deus..." Como partilhamos nossa intimidade com Deus? Como vivemos a ajuda espiritual mútua? Quais são os gestos, as ações concretas que colocamos em prática para ajudar o outro a crescer na fé? Já consideramos ter um acompanhante espiritual pessoal? O que nos impede?\n\n4. Assumir e deixar-se assumir. Trata-se de assumir o pleno desenvolvimento do nosso cônjuge. "Assumam-se mutuamente, tornem-se responsáveis pelo desenvolvimento um do outro — e isso implica reconhecer que se precisa do outro." Nós nos confiamos suficientemente ao nosso cônjuge? O que poderíamos partilhar mais para amar com um amor ainda mais parecido com aquele com que Deus nos ama?\n\n5. Deus nos deu um presente magnífico ao nos dar nosso cônjuge para amá-lo. Amar como Cristo nos pede é querer a felicidade do outro, é beber desse amor no coração mesmo de Deus. "Tudo se resume então a saber se você colocará o bem-estar dele acima do seu, ou o seu acima do dele." Quais são os momentos em que não conseguimos isso? Sabemos a causa? Como poderíamos melhorar?';
+var TEMA_MEDITACAO_TEXTO = 'Não me permitas subir pelo tempo fora aparelhado de uma indiferença crescente como se habitasse uma cápsula. Tu sabes como facilmente nos tornamos uma máquina de fabricar razões para o escapismo e como estamos longe da construção quotidiana de uma amizade social.\n\nNão me deixes supor o mundo, com todas as suas dores, como um flagelo indecifrável e distante do qual tenho simplesmente de me proteger, em vez de interpretá-lo como um apelo que me vem de ti para atuar em teu nome; um apelo a despojar-me das camadas de conforto que isolam e a lavar os pés dos irmãos, como tu o fizeste na última ceia.\n\nNão consintas no meu virar de cara rotineiro; na minha surdez ao apelo da vida nua que facilmente se perde entre todas as vozes; na dureza prática com que encaro as fragilidades que irrompem na vida dos outros; nas desculpas que dou por andar ocupado noutra esfera; no comodismo que se disfarça no juízo de que já é tarde demais e que nada se pode fazer.\n\nEnsina-me a meter-me em jogo, a viver a minha existência em saída, a entendê-la como uma vida que não me pertence completamente, pois está hipotecada à compaixão, à misericórdia e ao cuidado.\n\nEnsina-me a prece verdadeira, aquela prece feita não de palavras, mas de gestos, que o bom samaritano fazia subir até ti.\n\nCardeal José Tolentino de Mendonça';
+var TEMA_BIBLICA_TEXTO = 'Romanos 12, 9-21\n\nO amor não seja falso. Detestai o mal, apegai-vos ao bem. Que o amor fraterno nos una uns aos outros, com terna afeição, estimando-vos reciprocamente. Não sejais lento na solicitude, sede fervorosos no espírito, servindo sempre ao Senhor, alegres na esperança, fortes na tribulação, perseverantes na oração. Mostrai-vos solidários com os santos em suas necessidades, prosseguir firme na prática da hospitalidade.\n\nAbençoai os que vos perseguem, abençoai e não amaldiçoeis. Alegrai-vos com os que se alegram, chorai com os que choram. Mantende um bom entendimento uns com os outros; não sejais pretensiosos, mas acomodai-vos às coisas humildes. Não vos considereis sábios aos próprios olhos.\n\nA ninguém pagueis o mal com o mal. Empenhai-vos em fazer o bem diante de todos. Na medida do possível e enquanto depender de vós, vivei em paz com todos.\n\nCaríssimos, não façais justiça por vós mesmos, mas dai lugar à ira divina, pois está escrito: "A mim compete fazer justiça, eu retribuirei", diz o Senhor.\n\nPelo contrário, se teu inimigo estiver com fome, dá-lhe de comer; se estiver com sede, dá-lhe de beber. Agindo assim, estarás amontoando brasas sobre a cabeça dele. Não te deixes vencer pelo mal, mas vence o mal pelo bem.';
 var TEMA_CAPITULOS = [
-  {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%201.pdf'},
-  {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%202.pdf'},
-  {label: 'Capítulo 3', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%203.pdf'},
-  {label: 'Capítulo 4', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%204.pdf'},
-  {label: 'Capítulo 5', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%205.pdf'},
-  {label: 'Capítulo 6', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%206.pdf'},
-  {label: 'Capítulo 7', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%207.pdf'},
-  {label: 'Capítulo 8', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%208.pdf'},
-  {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%209.pdf'},
+  {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%201.pdf'},
+  {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%202.pdf'},
+  {label: 'Capítulo 3', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%203.pdf'},
+  {label: 'Capítulo 4', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%204.pdf'},
+  {label: 'Capítulo 5', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%205.pdf'},
+  {label: 'Capítulo 6', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%206.pdf'},
+  {label: 'Capítulo 7', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%207.pdf'},
+  {label: 'Capítulo 8', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%208.pdf'},
+  {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%209.pdf'},
 ];
 
 
