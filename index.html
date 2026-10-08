@@ -171,7 +171,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.2.4</span>
+    <span class="splash-badge">VERSÃO TESTE — v1.2.6</span>
   </div>
 </div>
 
@@ -262,10 +262,14 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
       <!-- Leitor de PDF -->
       <div id="tema-view-pdf" style="display:none;">
         <button class="tema-back-btn" onclick="showTemaLeitura()">← Voltar aos capítulos</button>
-        <div style="font-size:13px;font-weight:700;margin-bottom:8px;" id="tema-pdf-titulo"></div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;" id="tema-pdf-titulo"></div>
+        <div id="tema-pdf-loader" style="font-size:12px;color:var(--text3);margin-bottom:6px;">Carregando... Aguarde alguns segundos.</div>
+        <button id="tema-pdf-fallback" onclick="abrirPDFexterno()" style="display:none;width:100%;padding:10px;margin-bottom:8px;font-size:13px;font-weight:700;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--blue);color:#fff;cursor:pointer;">Abrir em nova aba</button>
         <iframe id="tema-pdf-frame"
-          style="width:100%;height:75vh;border:0.5px solid var(--border);border-radius:var(--radius);background:#fff;"
-          src=""></iframe>
+          style="width:100%;height:72vh;border:0.5px solid var(--border);border-radius:var(--radius);background:#fff;"
+          src=""
+          onload="document.getElementById('tema-pdf-loader').style.display='none';"
+          onerror="pdfLoadError();"></iframe>
       </div>
       <!-- Dever de Sentar-se -->
       <div id="tema-view-dever" style="display:none;">
@@ -475,15 +479,15 @@ var SPLASH_IMAGEM = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUD
 var SPLASH_TITULO = 'ENS - PCEs';
 var SPLASH_SUBTITULO = 'Equipe 18 — Nossa Senhora de Lourdes\nSetor A — Região Brasília IV';
 
-var TEMA_TITULO_OBJ = 'Capítulo 7: A comunhão conjugal';
-var TEMA_TEXTO_OBJ = 'Objetivo: Reconhecer e viver o dom total de si mesmo no matrimônio, cultivando a reciprocidade e a acolhida ativa como expressão concreta do amor de Cristo.';
+var TEMA_TITULO_OBJ = 'Capítulo 8: O testemunho da vida do casal';
+var TEMA_TEXTO_OBJ = 'Objetivo: Despertar nos casais das Equipes de Nossa Senhora a consciência de que a busca da vivência da espiritualidade conjugal é o maior testemunho de vida que podem dar.';
 var TEMA_PROPOSITO = 'Propósito para o mês: A partir do tema de estudo e das reflexões da reunião, definir uma forma concreta para que a nossa espiritualidade conjugal possa crescer e se aprofundar.';
-var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 7';
-var TEMA_MES = 'Setembro / 2026';
+var TEMA_TITULO = 'Perguntas para a Reunião de Equipe — Capítulo 8';
+var TEMA_MES = 'Outubro / 2026';
 var TEMA_PERGUNTAS = [
-  'Vamos trocar nossas impressões sobre o que entendemos por amor ágape e como o vivemos — ou nos esforçamos para viver — dia após dia, de forma progressiva.',
-  'A comunhão conjugal e a comunhão dos santos. Em que circunstâncias experimentamos ser "um só coração e uma só alma"? O que pode nos ajudar, individualmente e como casal, a aumentar nosso conhecimento e amor por Deus? Temos consciência de que a participação conjunta nas obras do Senhor fortalece nosso amor mútuo e por Deus? Demos exemplos. Essas atitudes nos fizeram perceber que "o mesmo Espírito Santo suscita em nós a mesma luz, o mesmo amor, a mesma oração, a mesma alegria"? Como estamos vivendo a comunhão entre nós nos diferentes níveis da vida?',
-  'O que nos inspira a perspectiva do matrimônio cristão segundo o Padre Caffarel — ou seja, ao mesmo tempo comunhão dos santos, comunidade espiritual animada pelo ágape e Igreja doméstica, onde se atualiza e se vive o mistério da grande Igreja?'
+  'Mais de 60 anos atrás, o padre Caffarel já apontava a urgência do testemunho do casal cristão em um mundo dominado pelo ateísmo e ainda mais hoje. Estamos convencidos disso? O que fizemos nesse sentido desde o nosso casamento? O que estamos fazendo hoje? Estamos fazendo isso primeiro por Deus ou por nossos irmãos?',
+  'Vamos falar sobre como nosso amor conjugal pode dar testemunho da presença de um Deus trinitário. Como nosso amor conjugal pode refletir o amor que circula entre as três pessoas divinas? O que podemos fazer para que esse amor (o Espírito Santo) esteja ainda mais presente em nosso relacionamento, de modo que possamos dar um maior testemunho dos seus benefícios? A Equipe pode nos ajudar a fazer isso?',
+  'Ao longo deste ano, algumas das perguntas para o Dever de Sentar-se ou para a reunião se referiram ao nosso testemunho como casal cristão. Vamos compartilhar as formas e circunstâncias em que conseguimos dar testemunho, colocar em palavras a beleza e também a necessidade de um amor conjugal que se baseia na presença viva de Cristo em nós e em nossa parceria?'
 ];
 
 var ORACOES = [
@@ -703,9 +707,9 @@ function saveToday(){
 }
 
 // ---- Tema ----
-var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 7\n\n1. Dar e receber. Isso certamente exige um tempo, durante o qual o Senhor vai nos moldando. Como colocamos isso em prática no dia a dia da nossa vida conjugal? Quais obstáculos encontramos? Ao nos doarmos ao nosso cônjuge ou ao acolhê-lo, estamos também dando Deus ao nosso cônjuge? Acolhemos o Senhor por meio do nosso cônjuge? De que forma?\n\n2. Gestos de amor. Os gestos de amor são sinais visíveis do nosso amor pelo cônjuge. Quais são os nossos gestos de amor — esses rituais que criamos entre nós e que expressam a doação de nós mesmos? Estão esquecidos? Como podemos renová-los? Como esses gestos e ritos nos aproximam de Deus e aproximam nosso cônjuge de Deus?\n\n3. Supremacia do ágape. Segundo o Padre Caffarel, o ágape "regula, ordena, unifica inclinações, aspirações, vontades, virtudes dos cônjuges, todas as suas atividades — familiares, profissionais, sociais, religiosas — e as orienta para seu verdadeiro fim: a glória do Senhor". O ágape também dá ao amor humano seu impulso, seu fervor, sua sede de santidade — e, ao mesmo tempo, o cura. Em quais circunstâncias pudemos constatar isso? Como podemos perseverar na vivência de um amor cada vez mais conforme ao amor de Deus?\n\n4. Assumir e deixar-se assumir. Trata-se de assumir o pleno desenvolvimento do nosso cônjuge. "Assumam-se mutuamente, tornem-se responsáveis pelo desenvolvimento um do outro — e isso implica reconhecer que se precisa do outro." O que gostaríamos de trocar sobre essa afirmação do Padre Caffarel? Nós nos confiamos suficientemente ao nosso cônjuge? O que poderíamos partilhar mais para amar com um amor ainda mais parecido com aquele com que Deus nos ama?\n\n5. Deus nos deu um presente magnífico ao nos dar nosso cônjuge para amá-lo. Amar como Cristo nos pede é querer a felicidade do outro, é beber desse amor no coração mesmo de Deus. "Tudo se resume então a saber se você colocará o bem-estar dele acima do seu, ou o seu acima do dele." Quais são os momentos em que não conseguimos isso? Sabemos a causa? Como poderíamos melhorar? Desejar a felicidade do outro às vezes exige dizer certas coisas e pode até levar a desacordos que, depois, nos fazem amar melhor?';
-var TEMA_MEDITACAO_TEXTO = 'Oração à Sagrada Família\n\nJesus, Maria e José, em vós contemplamos o esplendor do verdadeiro amor, a vós, confiantes, nos dirigimos.\n\nSagrada Família de Nazaré, tornai também as nossas famílias lugares de comunhão e cenáculos de oração, autênticas escolas do Evangelho e pequenas igrejas domésticas.\n\nSagrada Família de Nazaré, que nunca mais haja nas famílias episódios de violência, de fechamento e divisão; e quem tiver sido ferido ou escandalizado seja rapidamente consolado e curado.\n\nSagrada Família de Nazaré, fazei que todos nos tornemos conscientes do carácter sagrado e inviolável da família, da sua beleza no projeto de Deus.\n\nJesus, Maria e José, ouvi-nos e acolhei a nossa súplica.\n\nAmém.\n\nPapa Francisco\nExortação apostólica Amoris Laetitia (n. 325)';
-var TEMA_BIBLICA_TEXTO = '1 João 3, 18-24\n\nFilhinhos, não amemos com palavras nem com a boca, mas com ações e em verdade!\n\nNisso conheceremos que somos da verdade e diante dele tranquilizaremos o nosso coração. Se o nosso coração nos acusa, Deus é maior que o nosso coração e tudo conhece. Amados, se o nosso coração não nos acusa, podemos dirigir-nos com confiança a Deus. E qualquer coisa que pedirmos, dele a receberemos, porque guardamos os seus mandamentos e fazemos o que é do seu agrado.\n\nEste é o seu mandamento: que creiamos no nome do seu Filho, Jesus Cristo, e nos amemos uns aos outros, de acordo com o mandamento que ele nos deu. Quem guarda os seus mandamentos permanece em Deus, e Deus permanece nele. E nisto sabemos que ele permanece em nós: pelo Espírito que nos deu.';
+var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 8\n\n1. "O mundo ateu, sem saber, espera um testemunho essencial do vosso amor conjugal e da vossa família." De que maneira somos as testemunhas que esse mundo espera? Para quem somos testemunhas privilegiadas e de que maneira? Como podemos progredir?\n\n2. "É viver cada vez mais perfeitamente o vosso amor, fazer com que ele se manifeste fiel, feliz e fecundo." Sabendo que isso está além das nossas forças, conseguimos testemunhar que somente Cristo Salvador pode nos dar as graças necessárias para alcançar um amor fiel, feliz e fecundo? Em quais situações essa graça se manifestou em nossa vida, e como podemos partilhar essa experiência tão valiosa para outros casais?\n\n"Gostaria de ter lhes comunicado minha convicção de que um lar de buscadores de Deus, num mundo que já não crê em Deus nem no amor, é uma teofania, uma manifestação de Deus..." Em que medida essa famosa frase do Padre Caffarel faz sentido para nós hoje?\n\n3. Nossa primeira missão de testemunho é na família: filhos, pais, irmãos, sobrinhos... Em quais gestos e palavras concretas os outros percebem esse testemunho de amor e vida?\n\n4. O que vocês fazem para cuidar do seu relacionamento como casal? Como pensam em transmitir isso aos casais mais jovens com quem convivem?\n\n5. Após um momento de releitura de nosso ano enquanto equipe de Nossa Senhora, reflitamos para partilharmos na reunião de balanço: Em que evoluiu nossa maneira de nos doar a nosso cônjuge nas tarefas cotidianas, no momento da intimidade, na vida espiritual? E aos outros? E a Deus?';
+var TEMA_MEDITACAO_TEXTO = '"Ó Deus, do qual provém toda a paternidade, nos céus como na terra, Vós, Pai, que sois Amor e Vida, pelo Vosso Filho Jesus Cristo, \'nascido de uma Mulher\', e pelo Espírito Santo, fonte de caridade divina, fazei que, na terra inteira, cada família humana se torne um verdadeiro santuário da vida e do amor, para as gerações que incessantemente se renovam.\n\nFazei que a Vossa graça oriente sempre os pensamentos e as ações dos esposos para o maior bem das suas famílias, de todas as famílias do mundo.\n\nFazei que as novas gerações encontrem na família um apoio sólido, que as torne sempre mais humanas e as faça crescer na verdade e no amor.\n\nFazei que o amor, consolidado pela graça do sacramento do Matrimônio, seja sempre mais forte do que todas as fraquezas, mais forte do que todas as crises, que, por vezes, se verificam em nossas famílias.\n\nFazei, enfim — nós vo-lo pedimos — por intercessão da Sagrada Família de Nazaré, que em todas as nações da terra a Igreja possa realizar com fruto a sua missão, na família e pela família. Vós, ó Pai, que sois a Vida, a Verdade e o Amor, na unidade do Filho e do Espírito Santo. Amém!"\n\nPapa João Paulo II\nAngelus de 27 de dezembro de 1981';
+var TEMA_BIBLICA_TEXTO = 'João 3, 13-17\n\n"Ninguém subiu ao céu, senão aquele que desceu do céu: o Filho do Homem. Como Moisés elevou a serpente no deserto, assim também é necessário que o Filho do Homem seja elevado, a fim de que todo o que nele crer tenha a vida eterna. De tal modo Deus amou o mundo, que deu o seu Filho unigênito, para que todo o que nele crer não pereça, mas tenha a vida eterna, pois Deus enviou o seu Filho ao mundo, não para condenar o mundo, mas para que o mundo seja salvo por meio dele."';
 var TEMA_CAPITULOS = [
   {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%201.pdf'},
   {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%202.pdf'},
@@ -815,14 +819,33 @@ function exportTextoExtra(tipo){
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">'+css+'</head><body>'+body+'</body></html>');
   w.document.close();setTimeout(function(){w.print();},600);
 }
+var _pdfUrlAtual = '';
 function openPDFView(url, label){
   ['menu','perguntas','leitura','dever','meditacao','biblica','intencoes','pdf'].forEach(function(v){
     document.getElementById('tema-view-'+v).style.display=v==='pdf'?'block':'none';
   });
+  _pdfUrlAtual = url;
   document.getElementById('tema-pdf-titulo').textContent=label;
-  // Usar Google Docs Viewer para evitar bloqueio de iframe
+  document.getElementById('tema-pdf-loader').style.display='block';
+  document.getElementById('tema-pdf-fallback').style.display='none';
+  // Usar Google Docs Viewer
   var viewerUrl='https://docs.google.com/viewer?url='+encodeURIComponent(url)+'&embedded=true';
   document.getElementById('tema-pdf-frame').src=viewerUrl;
+  // Se demorar mais de 8s, mostrar botão de fallback
+  setTimeout(function(){
+    var loader=document.getElementById('tema-pdf-loader');
+    if(loader&&loader.style.display!=='none'){
+      loader.textContent='O visualizador pode estar demorando. Tente abrir em nova aba:';
+      document.getElementById('tema-pdf-fallback').style.display='block';
+    }
+  }, 8000);
+}
+function pdfLoadError(){
+  document.getElementById('tema-pdf-loader').textContent='Não foi possível carregar o visualizador.';
+  document.getElementById('tema-pdf-fallback').style.display='block';
+}
+function abrirPDFexterno(){
+  window.open(_pdfUrlAtual,'_blank');
 }
 function renderTema(){ showTemaMenu(); }
 function renderTemaPerguntas(){
