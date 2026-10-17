@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ENS - PCEs [TESTE]</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzNiIgZmlsbD0iI2MwMzkyYiIvPjx0ZXh0IHg9Ijk2IiB5PSI4NSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iNDQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UENFczwvdGV4dD48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIyOCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5URVNURTwvdGV4dD48L3N2Zz4="/>
+<title>ENS - PCEs</title>
+<link rel="apple-touch-icon" href="icon.png"/>
+<link rel="icon" type="image/png" href="icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="PCEs TESTE"/>
+<meta name="apple-mobile-web-app-title" content="PCEs"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
@@ -171,7 +172,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="splash-title" id="splash-title">ENS - PCEs</div>
     <div class="splash-sub" id="splash-sub">Equipe 18 — Nossa Senhora de Lourdes<br/>Setor A — Região Brasília IV</div>
     <button class="splash-btn" onclick="entrarApp()">Iniciar</button>
-    <span class="splash-badge">VERSÃO TESTE — v1.2.6</span>
+    <span class="splash-badge">v1.2.7</span>
   </div>
 </div>
 
@@ -709,17 +710,17 @@ function saveToday(){
 // ---- Tema ----
 var TEMA_DEVER = 'Proposta de Perguntas para o Dever de Sentar-se — Capítulo 8\n\n1. "O mundo ateu, sem saber, espera um testemunho essencial do vosso amor conjugal e da vossa família." De que maneira somos as testemunhas que esse mundo espera? Para quem somos testemunhas privilegiadas e de que maneira? Como podemos progredir?\n\n2. "É viver cada vez mais perfeitamente o vosso amor, fazer com que ele se manifeste fiel, feliz e fecundo." Sabendo que isso está além das nossas forças, conseguimos testemunhar que somente Cristo Salvador pode nos dar as graças necessárias para alcançar um amor fiel, feliz e fecundo? Em quais situações essa graça se manifestou em nossa vida, e como podemos partilhar essa experiência tão valiosa para outros casais?\n\n"Gostaria de ter lhes comunicado minha convicção de que um lar de buscadores de Deus, num mundo que já não crê em Deus nem no amor, é uma teofania, uma manifestação de Deus..." Em que medida essa famosa frase do Padre Caffarel faz sentido para nós hoje?\n\n3. Nossa primeira missão de testemunho é na família: filhos, pais, irmãos, sobrinhos... Em quais gestos e palavras concretas os outros percebem esse testemunho de amor e vida?\n\n4. O que vocês fazem para cuidar do seu relacionamento como casal? Como pensam em transmitir isso aos casais mais jovens com quem convivem?\n\n5. Após um momento de releitura de nosso ano enquanto equipe de Nossa Senhora, reflitamos para partilharmos na reunião de balanço: Em que evoluiu nossa maneira de nos doar a nosso cônjuge nas tarefas cotidianas, no momento da intimidade, na vida espiritual? E aos outros? E a Deus?';
 var TEMA_MEDITACAO_TEXTO = '"Ó Deus, do qual provém toda a paternidade, nos céus como na terra, Vós, Pai, que sois Amor e Vida, pelo Vosso Filho Jesus Cristo, \'nascido de uma Mulher\', e pelo Espírito Santo, fonte de caridade divina, fazei que, na terra inteira, cada família humana se torne um verdadeiro santuário da vida e do amor, para as gerações que incessantemente se renovam.\n\nFazei que a Vossa graça oriente sempre os pensamentos e as ações dos esposos para o maior bem das suas famílias, de todas as famílias do mundo.\n\nFazei que as novas gerações encontrem na família um apoio sólido, que as torne sempre mais humanas e as faça crescer na verdade e no amor.\n\nFazei que o amor, consolidado pela graça do sacramento do Matrimônio, seja sempre mais forte do que todas as fraquezas, mais forte do que todas as crises, que, por vezes, se verificam em nossas famílias.\n\nFazei, enfim — nós vo-lo pedimos — por intercessão da Sagrada Família de Nazaré, que em todas as nações da terra a Igreja possa realizar com fruto a sua missão, na família e pela família. Vós, ó Pai, que sois a Vida, a Verdade e o Amor, na unidade do Filho e do Espírito Santo. Amém!"\n\nPapa João Paulo II\nAngelus de 27 de dezembro de 1981';
-var TEMA_BIBLICA_TEXTO = 'João 3, 13-17\n\n"Ninguém subiu ao céu, senão aquele que desceu do céu: o Filho do Homem. Como Moisés elevou a serpente no deserto, assim também é necessário que o Filho do Homem seja elevado, a fim de que todo o que nele crer tenha a vida eterna. De tal modo Deus amou o mundo, que deu o seu Filho unigênito, para que todo o que nele crer não pereça, mas tenha a vida eterna, pois Deus enviou o seu Filho ao mundo, não para condenar o mundo, mas para que o mundo seja salvo por meio dele."';
+var TEMA_BIBLICA_TEXTO = 'São Mateus 22, 15-21\n\nEntão se retiraram os fariseus e combinaram entre si como o surpreenderiam em alguma palavra.\n\nEnviaram-lhe seus discípulos com alguns herodianos, que lhe disseram: "Mestre, sabemos que és sincero e ensinas com franqueza o caminho de Deus, sem dar preferência a ninguém, pois não julgas as pessoas pelas aparências.\n\nDize-nos, então, o que te parece: é permitido pagar imposto a César ou não?"\n\nJesus, porém, percebendo a malícia deles, respondeu: "Hipócritas! Por que estais querendo tentar-me?\n\nMostrai-me a moeda do imposto". Apresentaram-lhe um denário.\n\nEle perguntou: "De quem é esta figura e a inscrição?"\n\n"De César", responderam. Então lhes disse: "Devolvei a César o que é de César, mas dai a Deus o que é de Deus".';
 var TEMA_CAPITULOS = [
-  {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%201.pdf'},
-  {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%202.pdf'},
-  {label: 'Capítulo 3', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%203.pdf'},
-  {label: 'Capítulo 4', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%204.pdf'},
-  {label: 'Capítulo 5', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%205.pdf'},
-  {label: 'Capítulo 6', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%206.pdf'},
-  {label: 'Capítulo 7', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%207.pdf'},
-  {label: 'Capítulo 8', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%208.pdf'},
-  {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/checklist-Test/2016%20-%20Capitulo%209.pdf'},
+  {label: 'Capítulo 1', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%201.pdf'},
+  {label: 'Capítulo 2', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%202.pdf'},
+  {label: 'Capítulo 3', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%203.pdf'},
+  {label: 'Capítulo 4', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%204.pdf'},
+  {label: 'Capítulo 5', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%205.pdf'},
+  {label: 'Capítulo 6', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%206.pdf'},
+  {label: 'Capítulo 7', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%207.pdf'},
+  {label: 'Capítulo 8', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%208.pdf'},
+  {label: 'Capítulo 9', url: 'https://trajanosousamelo-source.github.io/Clique-Aqui-Para-Controlar-Seus-PCEs/2016%20-%20Capitulo%209.pdf'},
 ];
 
 
